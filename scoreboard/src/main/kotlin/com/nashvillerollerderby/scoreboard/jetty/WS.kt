@@ -20,19 +20,19 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
 import org.eclipse.jetty.websocket.api.annotations.WebSocket
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeRequest
-import org.eclipse.jetty.websocket.servlet.ServletUpgradeResponse
-import org.eclipse.jetty.websocket.servlet.WebSocketCreator
-import org.eclipse.jetty.websocket.servlet.WebSocketServlet
-import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory
+import org.eclipse.jetty.websocket.server.JettyServerUpgradeRequest
+import org.eclipse.jetty.websocket.server.JettyServerUpgradeResponse
+import org.eclipse.jetty.websocket.server.JettyWebSocketCreator
+import org.eclipse.jetty.websocket.server.JettyWebSocketServlet
+import org.eclipse.jetty.websocket.server.JettyWebSocketServletFactory
 
 class WS(private val sb: ScoreBoard, private val jsm: JSONStateManager, private val useMetrics: Boolean) :
-    WebSocketServlet() {
+    JettyWebSocketServlet() {
 
     private val logger = Log4j2Logging.getLogger(this)
 
-    override fun configure(factory: WebSocketServletFactory) {
-        factory.creator = ScoreBoardWebSocketCreator()
+    override fun configure(factory: JettyWebSocketServletFactory) {
+        factory.setCreator(ScoreBoardWebSocketCreator())
     }
 
     private fun hasPermission(device: Device, action: String): Boolean {
@@ -72,8 +72,8 @@ class WS(private val sb: ScoreBoard, private val jsm: JSONStateManager, private 
         }
     }
 
-    inner class ScoreBoardWebSocketCreator : WebSocketCreator {
-        override fun createWebSocket(request: ServletUpgradeRequest, response: ServletUpgradeResponse): Any {
+    inner class ScoreBoardWebSocketCreator : JettyWebSocketCreator {
+        override fun createWebSocket(request: JettyServerUpgradeRequest, response: JettyServerUpgradeResponse): Any {
             val baseRequest = request.httpServletRequest
             val httpSessionId = baseRequest.session.id
             val remoteAddress = baseRequest.remoteAddr
@@ -273,9 +273,10 @@ class WS(private val sb: ScoreBoard, private val jsm: JSONStateManager, private 
         fun send(json: Map<String?, Any?>?) {
             val timer = if (useMetrics) messagesSentDuration!!.startTimer() else null
             try {
-                wsSession!!.remote.sendStringByFuture(
-                    JSON.std.with(JSON.Feature.WRITE_NULL_PROPERTIES).composeString().addObject(json).finish()
-                )
+                wsSession!!.remote.sendString(JSON.std.with(JSON.Feature.WRITE_NULL_PROPERTIES).composeString().addObject(json).finish())
+//                wsSession!!.remote.sendStringByFuture(
+//                    JSON.std.with(JSON.Feature.WRITE_NULL_PROPERTIES).composeString().addObject(json).finish()
+//                )
             } catch (e: Exception) {
                 logger.error("Error sending JSON update:", e)
                 if (useMetrics) {
@@ -305,7 +306,7 @@ class WS(private val sb: ScoreBoard, private val jsm: JSONStateManager, private 
             initialState["WS.Device.Id"] = device.id
             initialState["WS.Device.Name"] = device.name
             initialState["WS.Client.Id"] = sbClient.id
-            initialState["WS.Client.RemoteAddress"] = session.remoteAddress.address.hostAddress
+            initialState["WS.Client.RemoteAddress"] = session.remoteAddress.toString()
             json["state"] = initialState
             send(json)
         }

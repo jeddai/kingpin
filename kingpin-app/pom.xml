@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>kingpin-app</artifactId>
-    <version>${parent.version}</version>
+    <version>${project.parent.version}</version>
 
     <build>
         <plugins>

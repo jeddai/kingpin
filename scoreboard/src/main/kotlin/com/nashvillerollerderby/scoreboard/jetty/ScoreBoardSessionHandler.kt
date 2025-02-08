@@ -4,7 +4,7 @@ import com.nashvillerollerderby.scoreboard.core.interfaces.Clients
 import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard
 import org.eclipse.jetty.server.Request
 import org.eclipse.jetty.server.session.SessionHandler
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 class ScoreBoardSessionHandler(sb: ScoreBoard) : SessionHandler() {
     public override fun checkRequestedSessionId(baseRequest: Request, request: HttpServletRequest) {

@@ -4,9 +4,11 @@ import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard
 import com.nashvillerollerderby.scoreboard.json.JSONStateManager
 import com.nashvillerollerderby.scoreboard.utils.BasePath
 import com.nashvillerollerderby.scoreboard.utils.Log4j2Logging
-import io.prometheus.client.exporter.MetricsServlet
-import io.prometheus.client.filter.MetricsFilter
 import io.prometheus.client.hotspot.DefaultExports
+import io.prometheus.client.servlet.jakarta.exporter.MetricsServlet
+import io.prometheus.client.servlet.jakarta.filter.MetricsFilter
+import jakarta.servlet.DispatcherType
+import jakarta.servlet.http.HttpServlet
 import org.eclipse.jetty.http.HttpCookie.SameSite
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.ServerConnector
@@ -16,14 +18,13 @@ import org.eclipse.jetty.servlet.DefaultServlet
 import org.eclipse.jetty.servlet.FilterHolder
 import org.eclipse.jetty.servlet.ServletContextHandler
 import org.eclipse.jetty.servlet.ServletHolder
+import org.eclipse.jetty.websocket.server.config.JettyWebSocketServletContainerInitializer
 import java.io.File
 import java.net.MalformedURLException
 import java.net.SocketException
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import javax.servlet.DispatcherType
-import javax.servlet.http.HttpServlet
 
 class JettyServletScoreBoardController(
     var scoreBoard: ScoreBoard,
@@ -37,6 +38,7 @@ class JettyServletScoreBoardController(
 
     protected fun init(useMetrics: Boolean) {
         server = Server()
+
         val sC = ServerConnector(server)
         sC.host = host
         sC.port = port
@@ -59,7 +61,7 @@ class JettyServletScoreBoardController(
         sch.sessionHandler = sessions
         // Only keep the first two path components.
         val mf = FilterHolder(
-            MetricsFilter("jetty_http_request_latency_seconds", "Jetty HTTP request latency", 2, null)
+            MetricsFilter("jetty_http_request_latency_seconds", "Jetty HTTP request latency", 2, DoubleArray(1), false)
         )
         sch.addFilter(mf, "/*", EnumSet.of(DispatcherType.REQUEST))
 
@@ -73,6 +75,7 @@ class JettyServletScoreBoardController(
         sch.addServlet(ServletHolder(urlsServlet), "/urls/*")
 
         ws = WS(scoreBoard, jsm, useMetrics)
+        JettyWebSocketServletContainerInitializer.configure(sch, null)
         sch.addServlet(ServletHolder(ws), "/WS/*")
 
         if (useMetrics) {
@@ -98,9 +101,6 @@ class JettyServletScoreBoardController(
             throw RuntimeException("Could not start server : $e")
         }
 
-        if (port == 8000) {
-            logger.info("Double-click/open the 'start.html' file, or")
-        }
         logger.info("Open a web browser (either Google Chrome or Mozilla Firefox recommended) to:")
         logger.info("	http://" + (if (host != null) host else "localhost") + ":" + port)
         try {

@@ -1,11 +1,16 @@
 package com.nashvillerollerderby.scoreboard.jetty
 
 import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard
-import org.apache.commons.fileupload.FileItem
-import org.apache.commons.fileupload.FileItemFactory
-import org.apache.commons.fileupload.FileUploadException
-import org.apache.commons.fileupload.disk.DiskFileItemFactory
-import org.apache.commons.fileupload.servlet.ServletFileUpload
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.apache.commons.fileupload2.core.DiskFileItem
+import org.apache.commons.fileupload2.core.DiskFileItemFactory
+import org.apache.commons.fileupload2.core.FileItem
+import org.apache.commons.fileupload2.core.FileItemFactory
+import org.apache.commons.fileupload2.core.FileUploadException
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileNotFoundException
@@ -14,10 +19,6 @@ import java.io.IOException
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServlet
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 class MediaServlet(var scoreBoard: ScoreBoard, private var htmlDirName: String) : HttpServlet() {
     @Throws(ServletException::class, IOException::class)
@@ -44,20 +45,20 @@ class MediaServlet(var scoreBoard: ScoreBoard, private var htmlDirName: String) 
     @Throws(ServletException::class, IOException::class)
     fun upload(request: HttpServletRequest, response: HttpServletResponse) {
         try {
-            if (!ServletFileUpload.isMultipartContent(request)) {
+            if (!JakartaServletFileUpload.isMultipartContent(request)) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST)
                 return
             }
 
             var media: String? = null
             var type: String? = null
-            val fiF: FileItemFactory = DiskFileItemFactory()
-            val sfU = ServletFileUpload(fiF)
-            val fileItems: MutableList<FileItem> = LinkedList()
+            val fiF: FileItemFactory<DiskFileItem> = DiskFileItemFactory.builder().get()
+            val sfU = JakartaServletFileUpload(fiF)
+            val fileItems: MutableList<FileItem<*>> = LinkedList()
             val i: Iterator<*> = sfU.parseRequest(request).iterator()
 
             while (i.hasNext()) {
-                val item = i.next() as FileItem
+                val item = i.next() as FileItem<*>
                 if (item.isFormField) {
                     if (item.fieldName == "media") {
                         media = item.string
@@ -107,7 +108,7 @@ class MediaServlet(var scoreBoard: ScoreBoard, private var htmlDirName: String) 
     }
 
     @Throws(FileNotFoundException::class, IOException::class)
-    fun processFileItemList(fileItems: MutableList<FileItem>, media: String, type: String) {
+    fun processFileItemList(fileItems: MutableList<FileItem<*>>, media: String, type: String) {
         val typeDir = getTypeDir(media, type)
 
         val fileItemIterator = fileItems.listIterator()
@@ -135,7 +136,7 @@ class MediaServlet(var scoreBoard: ScoreBoard, private var htmlDirName: String) 
     }
 
     @Throws(IOException::class, FileNotFoundException::class)
-    fun createFile(typeDir: File?, item: FileItem): File {
+    fun createFile(typeDir: File?, item: FileItem<*>): File {
         val f = File(typeDir, item.name)
         f.parentFile.mkdirs()
         var fos: FileOutputStream? = null
@@ -151,7 +152,7 @@ class MediaServlet(var scoreBoard: ScoreBoard, private var htmlDirName: String) 
     }
 
     @Throws(IOException::class)
-    fun processZipFileItem(factory: FileItemFactory, zip: FileItem, fileItems: MutableList<FileItem>) {
+    fun processZipFileItem(factory: FileItemFactory<DiskFileItem>, zip: FileItem<*>, fileItems: MutableList<FileItem<*>>) {
         val ziS = ZipInputStream(zip.inputStream)
         var zE: ZipEntry?
         ziS.use {
@@ -159,7 +160,11 @@ class MediaServlet(var scoreBoard: ScoreBoard, private var htmlDirName: String) 
                 if (zE!!.isDirectory || !scoreBoard.media.validFileName(zE!!.name)) {
                     continue
                 }
-                val item = factory.createItem(null, null, false, zE!!.name)
+                val fileBuilder = factory.fileItemBuilder<DiskFileItem.Builder>()
+                fileBuilder.isFormField = false
+                fileBuilder.fileName =zE!!.name
+                val item = fileBuilder.get()
+
                 val oS = item.outputStream
                 IOUtils.copyLarge(it, oS)
                 oS.close()

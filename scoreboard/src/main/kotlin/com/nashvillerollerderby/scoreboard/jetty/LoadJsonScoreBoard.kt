@@ -5,17 +5,17 @@ import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard
 import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProvider
 import com.nashvillerollerderby.scoreboard.json.ScoreBoardJSONSetter
 import com.nashvillerollerderby.scoreboard.utils.StatsbookImporter
-import org.apache.commons.fileupload.FileUploadException
-import org.apache.commons.fileupload.servlet.ServletFileUpload
+import jakarta.servlet.ServletException
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.apache.commons.fileupload2.core.FileUploadException
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.concurrent.atomic.AtomicInteger
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServlet
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 class LoadJsonScoreBoard(protected val scoreBoard: ScoreBoard) : HttpServlet() {
     @Throws(ServletException::class, IOException::class)
@@ -30,19 +30,19 @@ class LoadJsonScoreBoard(protected val scoreBoard: ScoreBoard) : HttpServlet() {
                 )
             }
             try {
-                if (!ServletFileUpload.isMultipartContent(request)) {
+                if (!JakartaServletFileUpload.isMultipartContent(request)) {
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST)
                     return
                 }
 
-                val sfU = ServletFileUpload()
+                val sfU = JakartaServletFileUpload()
                 val items = sfU.getItemIterator(request)
                 while (items.hasNext()) {
                     val item = items.next()
                     if (!item.isFormField) {
                         if (request.pathInfo.equals("/JSON", ignoreCase = true)) {
                             runningImports.incrementAndGet()
-                            val stream = item.openStream()
+                            val stream = item.inputStream
                             val map = JSON.std.mapFrom(stream)
                             stream.close()
                             val state = map["state"] as MutableMap<String, Any>?
@@ -64,10 +64,10 @@ class LoadJsonScoreBoard(protected val scoreBoard: ScoreBoard) : HttpServlet() {
                                 }
                             }
                         } else if (request.pathInfo.equals("/xlsx", ignoreCase = true)) {
-                            sbImporter.read(item.openStream())
+                            sbImporter.read(item.inputStream)
                         } else if (request.pathInfo.equals("/blank_xlsx", ignoreCase = true)) {
                             val outputPath = Paths.get("blank_statsbook.xlsx")
-                            Files.copy(item.openStream(), outputPath, StandardCopyOption.REPLACE_EXISTING)
+                            Files.copy(item.inputStream, outputPath, StandardCopyOption.REPLACE_EXISTING)
                             scoreBoard.runInBatch {
                                 scoreBoard.settings[ScoreBoard.SETTING_STATSBOOK_INPUT] = outputPath.toString()
                             }

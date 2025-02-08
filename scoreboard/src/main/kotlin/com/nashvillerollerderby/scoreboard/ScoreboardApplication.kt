@@ -46,7 +46,7 @@ class ScoreboardApplication(argv: Array<String>) {
 
         // Controllers.
         val jetty =
-            JettyServletScoreBoardController(scoreBoard!!, jsm!!, host, port, useMetrics)
+            JettyServletScoreBoardController(scoreBoard!!, jsm!!, ApplicationConfig.config.host, ApplicationConfig.config.port, useMetrics)
 
         // Viewers.
         if (useMetrics) {
@@ -100,9 +100,9 @@ class ScoreboardApplication(argv: Array<String>) {
             } else if (arg == "--nogui" || arg == "-G") {
                 gui = false
             } else if (arg.startsWith("--port=") || arg.startsWith("-p=")) {
-                port = arg.split("=".toRegex(), limit = 2).toTypedArray()[1].toInt()
+                ApplicationConfig.config.port = arg.split("=".toRegex(), limit = 2).toTypedArray()[1].toInt()
             } else if (arg.startsWith("--host=") || arg.startsWith("-h=")) {
-                host = arg.split("=".toRegex(), limit = 2).toTypedArray()[1]
+                ApplicationConfig.config.host = arg.split("=".toRegex(), limit = 2).toTypedArray()[1]
             } else if (arg.startsWith("--import=") || arg.startsWith("-i=")) {
                 importPath = arg.split("=".toRegex(), limit = 2).toTypedArray()[1]
             } else if (arg == "--metrics" || arg == "-m") {
@@ -203,9 +203,6 @@ class ScoreboardApplication(argv: Array<String>) {
     private var guiMessages: JTextArea? = null
     private var guiFrameText: JLabel? = null
 
-    private var host: String? = null
-    private var port = 8000
-
     private var importPath: String? = null
 
     private val logFile = File(BasePath.get(), "logs/crg.log")
@@ -213,9 +210,10 @@ class ScoreboardApplication(argv: Array<String>) {
     private var useMetrics = false
 
     init {
+        logger.info("Starting Kingpin application")
+        logger.info("Database type: ${ApplicationConfig.config.databaseConfig.type}")
         parseArgv(argv)
         logFile.parentFile.mkdirs()
-        logger.info("Starting application")
         importFromOldVersion()
         start()
         if (guiFrameText != null) {

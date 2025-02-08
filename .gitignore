@@ -3,6 +3,8 @@ scoreboard/config/autosave/*
 scoreboard/html/new-ui/*
 target/
 
+*.versionsBackup
+
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/
