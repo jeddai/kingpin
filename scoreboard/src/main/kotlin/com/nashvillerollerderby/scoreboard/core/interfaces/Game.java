@@ -1,9 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.interfaces;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-
 import com.nashvillerollerderby.scoreboard.core.interfaces.Rulesets.Ruleset;
 import com.nashvillerollerderby.scoreboard.event.Child;
 import com.nashvillerollerderby.scoreboard.event.Command;
@@ -15,175 +11,203 @@ import com.nashvillerollerderby.scoreboard.penalties.PenaltyCode;
 import com.nashvillerollerderby.scoreboard.rules.Rule;
 import com.nashvillerollerderby.scoreboard.utils.ValWithId;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 public interface Game extends ScoreBoardEventProvider {
-    public void postAutosaveUpdate();
+    void postAutosaveUpdate();
 
-    public Timeout getCurrentTimeout();
+    Timeout getCurrentTimeout();
 
-    public TimeoutOwner getTimeoutOwner();
-    public void setTimeoutOwner(TimeoutOwner owner);
+    TimeoutOwner getTimeoutOwner();
 
-    public boolean isOfficialReview();
-    public void setOfficialReview(boolean official);
+    void setTimeoutOwner(TimeoutOwner owner);
 
-    public boolean isInPeriod();
-    public void setInPeriod(boolean inPeriod);
-    public Period getOrCreatePeriod(int p);
-    public Period getCurrentPeriod();
-    public int getCurrentPeriodNumber();
+    boolean isOfficialReview();
 
-    public boolean isInJam();
-    public Jam getUpcomingJam();
+    void setOfficialReview(boolean official);
+
+    boolean isInPeriod();
+
+    void setInPeriod(boolean inPeriod);
+
+    Period getOrCreatePeriod(int p);
+
+    Period getCurrentPeriod();
+
+    int getCurrentPeriodNumber();
+
+    boolean isInJam();
+
+    Jam getUpcomingJam();
 
     // update the references to current/upcoming/just ended TeamJams
-    public void updateTeamJams();
+    void updateTeamJams();
 
-    public boolean isInOvertime();
-    public void setInOvertime(boolean inOvertime);
-    public void startOvertime();
+    boolean isInOvertime();
 
-    public boolean isInSuddenScoring();
+    void setInOvertime(boolean inOvertime);
 
-    public boolean isLastTwoMinutes();
+    void startOvertime();
 
-    public boolean isOfficialScore();
-    public void setOfficialScore(boolean official);
+    boolean isInSuddenScoring();
 
-    public void startJam();
-    public void stopJamTO();
+    boolean isLastTwoMinutes();
 
-    public void timeout();
-    public void setTimeoutType(TimeoutOwner owner, boolean review);
+    boolean isOfficialScore();
 
-    public void clockUndo(boolean replace);
+    void setOfficialScore(boolean official);
 
-    public Clock getClock(String id);
+    void startJam();
 
-    public Team getTeam(String id);
+    void stopJamTO();
 
-    public void setRuleset(Ruleset rs);
+    void timeout();
+
+    void setTimeoutType(TimeoutOwner owner, boolean review);
+
+    void clockUndo(boolean replace);
+
+    Clock getClock(String id);
+
+    Team getTeam(String id);
+
+    void setRuleset(Ruleset rs);
+
     // if rs is the current ruleset or an ancestor of it, refresh the current rules
-    public void refreshRuleset(Ruleset rs);
+    void refreshRuleset(Ruleset rs);
 
     // Get information from current ruleset.
-    public String get(Rule r);
-    public boolean getBoolean(Rule r);
-    public int getInt(Rule r);
-    public long getLong(Rule r);
-    public void set(Rule r, String v);
+    String get(Rule r);
+
+    boolean getBoolean(Rule r);
+
+    int getInt(Rule r);
+
+    long getLong(Rule r);
+
+    void set(Rule r, String v);
 
     // The last loaded ruleset.
-    public Ruleset getRuleset();
-    public String getRulesetName();
+    Ruleset getRuleset();
 
-    public String getFilename();
+    String getRulesetName();
 
-    public void exportDone(boolean success, String failureText);
-    public void clearStatsbookError();
+    String getFilename();
 
-    public enum State {
+    void exportDone(boolean success, String failureText);
+
+    void clearStatsbookError();
+
+    enum State {
         PREPARED("Prepared"),
         RUNNING("Running"),
         FINISHED("Finished");
 
-        State(String str) { string = str; }
+        State(String str) {
+            string = str;
+        }
 
         @Override
         public String toString() {
             return string;
         }
+
         public static State fromString(String s) {
             for (State r : values()) {
-                if (r.toString().equals(s)) { return r; }
+                if (r.toString().equals(s)) {
+                    return r;
+                }
             }
             return null;
         }
 
-        private String string;
+        private final String string;
     }
 
-    public static Collection<Property<?>> props = new ArrayList<>(Arrays.asList(Period.JAM, Team.BOX_TRIP));
+    Collection<Property<?>> props = new ArrayList<>(Arrays.asList(Period.JAM, Team.BOX_TRIP));
 
-    public static final Value<String> NAME = new Value<>(String.class, "Name", "", props);
-    public static final Value<String> NAME_FORMAT = new Value<>(String.class, "NameFormat", "", props);
-    public static final Value<State> STATE = new Value<>(State.class, "State", State.PREPARED, props);
-    public static final Value<Integer> CURRENT_PERIOD_NUMBER =
-        new Value<>(Integer.class, "CurrentPeriodNumber", 0, props);
-    public static final Value<Period> CURRENT_PERIOD = new Value<>(Period.class, "CurrentPeriod", null, props);
-    public static final Value<Jam> UPCOMING_JAM = new Value<>(Jam.class, "UpcomingJam", null, props);
-    public static final Value<Integer> UPCOMING_JAM_NUMBER = new Value<>(Integer.class, "UpcomingJamNumber", 0, props);
-    public static final Value<Boolean> IN_PERIOD = new Value<>(Boolean.class, "InPeriod", false, props);
-    public static final Value<Boolean> IN_JAM = new Value<>(Boolean.class, "InJam", false, props);
-    public static final Value<Boolean> IN_OVERTIME = new Value<>(Boolean.class, "InOvertime", false, props);
-    public static final Value<Boolean> IN_SUDDEN_SCORING = new Value<>(Boolean.class, "InSuddenScoring", false, props);
-    public static final Value<Boolean> INJURY_CONTINUATION_UPCOMING =
-        new Value<>(Boolean.class, "InjuryContinuationUpcoming", false, props);
-    public static final Value<Boolean> OFFICIAL_SCORE = new Value<>(Boolean.class, "OfficialScore", false, props);
-    public static final Value<String> ABORT_REASON = new Value<>(String.class, "AbortReason", "", props);
-    public static final Value<Timeout> CURRENT_TIMEOUT = new Value<>(Timeout.class, "CurrentTimeout", null, props);
-    public static final Value<TimeoutOwner> TIMEOUT_OWNER =
-        new Value<>(TimeoutOwner.class, "TimeoutOwner", null, props);
-    public static final Value<Boolean> OFFICIAL_REVIEW = new Value<>(Boolean.class, "OfficialReview", false, props);
-    public static final Value<Boolean> NO_MORE_JAM = new Value<>(Boolean.class, "NoMoreJam", false, props);
-    public static final Value<Ruleset> RULESET = new Value<>(Ruleset.class, "Ruleset", null, props);
-    public static final Value<String> RULESET_NAME = new Value<>(String.class, "RulesetName", "Custom", props);
-    public static final Value<Official> HEAD_NSO = new Value<>(Official.class, "HNSO", null, props);
-    public static final Value<Official> HEAD_REF = new Value<>(Official.class, "HR", null, props);
-    public static final Value<String> SUSPENSIONS_SERVED = new Value<>(String.class, "SuspensionsServed", "", props);
-    public static final Value<String> FILENAME =
-        new Value<>(String.class, "Filename", "STATS-0000-00-00_Team1_vs_Team_2", props);
-    public static final Value<String> LAST_FILE_UPDATE = new Value<>(String.class, "LastFileUpdate", "Never", props);
-    public static final Value<Boolean> UPDATE_IN_PROGRESS =
-        new Value<>(Boolean.class, "UpdateInProgress", false, props);
-    public static final Value<Boolean> STATSBOOK_EXISTS = new Value<>(Boolean.class, "StatsbookExists", false, props);
-    public static final Value<Boolean> JSON_EXISTS = new Value<>(Boolean.class, "JsonExists", false, props);
-    public static final Value<Boolean> CLOCK_DURING_FINAL_SCORE =
-        new Value<>(Boolean.class, "ClockDuringFinalScore", false, props);
-    public static final Value<String> EXPORT_BLOCKED_BY = new Value<>(String.class, "ExportBlockedBy", "", props);
+    Value<String> NAME = new Value<>(String.class, "Name", "", props);
+    Value<String> NAME_FORMAT = new Value<>(String.class, "NameFormat", "", props);
+    Value<State> STATE = new Value<>(State.class, "State", State.PREPARED, props);
+    Value<Integer> CURRENT_PERIOD_NUMBER =
+            new Value<>(Integer.class, "CurrentPeriodNumber", 0, props);
+    Value<Period> CURRENT_PERIOD = new Value<>(Period.class, "CurrentPeriod", null, props);
+    Value<Jam> UPCOMING_JAM = new Value<>(Jam.class, "UpcomingJam", null, props);
+    Value<Integer> UPCOMING_JAM_NUMBER = new Value<>(Integer.class, "UpcomingJamNumber", 0, props);
+    Value<Boolean> IN_PERIOD = new Value<>(Boolean.class, "InPeriod", false, props);
+    Value<Boolean> IN_JAM = new Value<>(Boolean.class, "InJam", false, props);
+    Value<Boolean> IN_OVERTIME = new Value<>(Boolean.class, "InOvertime", false, props);
+    Value<Boolean> IN_SUDDEN_SCORING = new Value<>(Boolean.class, "InSuddenScoring", false, props);
+    Value<Boolean> INJURY_CONTINUATION_UPCOMING =
+            new Value<>(Boolean.class, "InjuryContinuationUpcoming", false, props);
+    Value<Boolean> OFFICIAL_SCORE = new Value<>(Boolean.class, "OfficialScore", false, props);
+    Value<String> ABORT_REASON = new Value<>(String.class, "AbortReason", "", props);
+    Value<Timeout> CURRENT_TIMEOUT = new Value<>(Timeout.class, "CurrentTimeout", null, props);
+    Value<TimeoutOwner> TIMEOUT_OWNER =
+            new Value<>(TimeoutOwner.class, "TimeoutOwner", null, props);
+    Value<Boolean> OFFICIAL_REVIEW = new Value<>(Boolean.class, "OfficialReview", false, props);
+    Value<Boolean> NO_MORE_JAM = new Value<>(Boolean.class, "NoMoreJam", false, props);
+    Value<Ruleset> RULESET = new Value<>(Ruleset.class, "Ruleset", null, props);
+    Value<String> RULESET_NAME = new Value<>(String.class, "RulesetName", "Custom", props);
+    Value<Official> HEAD_NSO = new Value<>(Official.class, "HNSO", null, props);
+    Value<Official> HEAD_REF = new Value<>(Official.class, "HR", null, props);
+    Value<String> SUSPENSIONS_SERVED = new Value<>(String.class, "SuspensionsServed", "", props);
+    Value<String> FILENAME =
+            new Value<>(String.class, "Filename", "STATS-0000-00-00_Team1_vs_Team_2", props);
+    Value<String> LAST_FILE_UPDATE = new Value<>(String.class, "LastFileUpdate", "Never", props);
+    Value<Boolean> UPDATE_IN_PROGRESS =
+            new Value<>(Boolean.class, "UpdateInProgress", false, props);
+    Value<Boolean> STATSBOOK_EXISTS = new Value<>(Boolean.class, "StatsbookExists", false, props);
+    Value<Boolean> JSON_EXISTS = new Value<>(Boolean.class, "JsonExists", false, props);
+    Value<Boolean> CLOCK_DURING_FINAL_SCORE =
+            new Value<>(Boolean.class, "ClockDuringFinalScore", false, props);
+    Value<String> EXPORT_BLOCKED_BY = new Value<>(String.class, "ExportBlockedBy", "", props);
 
-    public static final Child<Clock> CLOCK = new Child<>(Clock.class, "Clock", props);
-    public static final Child<Team> TEAM = new Child<>(Team.class, "Team", props);
-    public static final Child<ValWithId> RULE = new Child<>(ValWithId.class, "Rule", props);
-    public static final Child<PenaltyCode> PENALTY_CODE = new Child<>(PenaltyCode.class, "PenaltyCode", props);
-    public static final Child<ValWithId> LABEL = new Child<>(ValWithId.class, "Label", props);
-    public static final Child<ValWithId> EVENT_INFO = new Child<>(ValWithId.class, "EventInfo", props);
-    public static final Child<Official> NSO = new Child<>(Official.class, "Nso", props);
-    public static final Child<Official> REF = new Child<>(Official.class, "Ref", props);
-    public static final Child<Expulsion> EXPULSION = new Child<>(Expulsion.class, "Expulsion", props);
+    Child<Clock> CLOCK = new Child<>(Clock.class, "Clock", props);
+    Child<Team> TEAM = new Child<>(Team.class, "Team", props);
+    Child<ValWithId> RULE = new Child<>(ValWithId.class, "Rule", props);
+    Child<PenaltyCode> PENALTY_CODE = new Child<>(PenaltyCode.class, "PenaltyCode", props);
+    Child<ValWithId> LABEL = new Child<>(ValWithId.class, "Label", props);
+    Child<ValWithId> EVENT_INFO = new Child<>(ValWithId.class, "EventInfo", props);
+    Child<Official> NSO = new Child<>(Official.class, "Nso", props);
+    Child<Official> REF = new Child<>(Official.class, "Ref", props);
+    Child<Expulsion> EXPULSION = new Child<>(Expulsion.class, "Expulsion", props);
 
-    public static final NumberedChild<Period> PERIOD = new NumberedChild<>(Period.class, "Period", props);
+    NumberedChild<Period> PERIOD = new NumberedChild<>(Period.class, "Period", props);
 
-    public static final Command START_JAM = new Command("StartJam", props);
-    public static final Command STOP_JAM = new Command("StopJam", props);
-    public static final Command TIMEOUT = new Command("Timeout", props);
-    public static final Command CLOCK_UNDO = new Command("ClockUndo", props);
-    public static final Command CLOCK_REPLACE = new Command("ClockReplace", props);
-    public static final Command START_OVERTIME = new Command("StartOvertime", props);
-    public static final Command OFFICIAL_TIMEOUT = new Command("OfficialTimeout", props);
-    public static final Command EXPORT = new Command("Export", props);
-    public static final Command START_BOX_TRIP = new Command("StartBoxTrip", props);
-    public static final Command START_JAMMER_BOX_TRIP = new Command("StartJammerBoxTrip", props);
-    public static final Command COPY = new Command("Copy", props);
+    Command START_JAM = new Command("StartJam", props);
+    Command STOP_JAM = new Command("StopJam", props);
+    Command TIMEOUT = new Command("Timeout", props);
+    Command CLOCK_UNDO = new Command("ClockUndo", props);
+    Command CLOCK_REPLACE = new Command("ClockReplace", props);
+    Command START_OVERTIME = new Command("StartOvertime", props);
+    Command OFFICIAL_TIMEOUT = new Command("OfficialTimeout", props);
+    Command EXPORT = new Command("Export", props);
+    Command START_BOX_TRIP = new Command("StartBoxTrip", props);
+    Command START_JAMMER_BOX_TRIP = new Command("StartJammerBoxTrip", props);
+    Command COPY = new Command("Copy", props);
 
-    public static final String SETTING_DEFAULT_NAME_FORMAT = "ScoreBoard.Game.DefaultNameFormat";
+    String SETTING_DEFAULT_NAME_FORMAT = "ScoreBoard.Game.DefaultNameFormat";
 
-    public static final String INFO_VENUE = "Venue";
-    public static final String INFO_CITY = "City";
-    public static final String INFO_STATE = "State";
-    public static final String INFO_TOURNAMENT = "Tournament";
-    public static final String INFO_HOST = "HostLeague";
-    public static final String INFO_GAME_NUMBER = "GameNo";
-    public static final String INFO_DATE = "Date";
-    public static final String INFO_START_TIME = "StartTime";
+    String INFO_VENUE = "Venue";
+    String INFO_CITY = "City";
+    String INFO_STATE = "State";
+    String INFO_TOURNAMENT = "Tournament";
+    String INFO_HOST = "HostLeague";
+    String INFO_GAME_NUMBER = "GameNo";
+    String INFO_DATE = "Date";
+    String INFO_START_TIME = "StartTime";
 
-    public static final String ACTION_NONE = "---";
-    public static final String ACTION_NO_REPLACE = "No Action";
-    public static final String ACTION_START_JAM = "Start Jam";
-    public static final String ACTION_STOP_JAM = "Stop Jam";
-    public static final String ACTION_STOP_TO = "End Timeout";
-    public static final String ACTION_LINEUP = "Lineup";
-    public static final String ACTION_TIMEOUT = "Timeout";
-    public static final String ACTION_RE_TIMEOUT = "New Timeout";
-    public static final String ACTION_OVERTIME = "Overtime Lineup";
-    public static final String UNDO_PREFIX = "Un-";
+    String ACTION_NONE = "---";
+    String ACTION_NO_REPLACE = "No Action";
+    String ACTION_START_JAM = "Start Jam";
+    String ACTION_STOP_JAM = "Stop Jam";
+    String ACTION_STOP_TO = "End Timeout";
+    String ACTION_LINEUP = "Lineup";
+    String ACTION_TIMEOUT = "Timeout";
+    String ACTION_RE_TIMEOUT = "New Timeout";
+    String ACTION_OVERTIME = "Overtime Lineup";
+    String UNDO_PREFIX = "Un-";
 }

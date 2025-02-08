@@ -1,13 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.game;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.nashvillerollerderby.scoreboard.core.interfaces.BoxTrip;
 import com.nashvillerollerderby.scoreboard.core.interfaces.Fielding;
 import com.nashvillerollerderby.scoreboard.core.interfaces.FloorPosition;
@@ -27,6 +19,14 @@ import com.nashvillerollerderby.scoreboard.event.Value;
 import com.nashvillerollerderby.scoreboard.event.ValueWithId;
 import com.nashvillerollerderby.scoreboard.rules.Rule;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements Skater {
     public SkaterImpl(Team t, String i) {
         super(t, i == null ? UUID.randomUUID().toString() : i, Team.SKATER);
@@ -34,6 +34,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
         game = t.getGame();
         initialize();
     }
+
     public SkaterImpl(Team t, PreparedSkater ps, String i) {
         super(t, i == null ? UUID.randomUUID().toString() : i, Team.SKATER);
         team = t;
@@ -42,6 +43,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
         set(PREPARED_SKATER, ps);
         setFlags(ps.get(FLAGS));
     }
+
     public SkaterImpl(Team t, Skater source) {
         this(t, (String) null);
         PreparedSkater ps = source.get(PREPARED_SKATER);
@@ -75,10 +77,18 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
 
     @Override
     public int compareTo(Skater other) {
-        if (other == null) { return -1; }
-        if (getRosterNumber() == other.getRosterNumber()) { return 0; }
-        if (getRosterNumber() == null) { return 1; }
-        if (other.getRosterNumber() == null) { return -1; }
+        if (other == null) {
+            return -1;
+        }
+        if (getRosterNumber() == other.getRosterNumber()) {
+            return 0;
+        }
+        if (getRosterNumber() == null) {
+            return 1;
+        }
+        if (other.getRosterNumber() == null) {
+            return -1;
+        }
         return getRosterNumber().compareTo(other.getRosterNumber());
     }
 
@@ -107,24 +117,33 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
         if (prop == PENALTY_COUNT) {
             int count = 0;
             for (Penalty p : getAll(PENALTY)) {
-                if (!FO_EXP_ID.equals(p.getProviderId())) { count++; }
+                if (!FO_EXP_ID.equals(p.getProviderId())) {
+                    count++;
+                }
             }
             return count;
         }
         if (prop == HAS_UNSERVED) {
-            if (get(EXTRA_PENALTY_TIME) > 0L) { return true; }
+            if (get(EXTRA_PENALTY_TIME) > 0L) {
+                return true;
+            }
             for (Penalty p : getAll(PENALTY)) {
-                if (!FO_EXP_ID.equals(p.getProviderId()) && !p.get(Penalty.SERVED)) { return true; }
+                if (!FO_EXP_ID.equals(p.getProviderId()) && !p.get(Penalty.SERVED)) {
+                    return true;
+                }
             }
             return false;
         }
         if (prop == PENALTY_BOX && source == Source.WS &&
-            Boolean.parseBoolean(scoreBoard.getSettings().get(ScoreBoard.SETTING_USE_PBT))) {
+                Boolean.parseBoolean(scoreBoard.getSettings().get(ScoreBoard.SETTING_USE_PBT))) {
             return last;
         }
-        if (prop == EXTRA_PENALTY_TIME) { return ((Long) value / 1000L) * 1000L; }
+        if (prop == EXTRA_PENALTY_TIME) {
+            return ((Long) value / 1000L) * 1000L;
+        }
         return value;
     }
+
     @Override
     protected void valueChanged(Value<?> prop, Object value, Object last, Source source, Flag flag) {
         if (prop == CURRENT_FIELDING && !source.isFile()) {
@@ -136,8 +155,12 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
                     f.add(Fielding.BOX_TRIP, lf.getCurrentBoxTrip());
                 }
             }
-            if (f != null && f.getPosition().getFloorPosition() == FloorPosition.JAMMER) { set(COLOR, "Jammer"); }
-            if (f != null && f.getPosition().getFloorPosition() == FloorPosition.PIVOT) { set(COLOR, "Pivot"); }
+            if (f != null && f.getPosition().getFloorPosition() == FloorPosition.JAMMER) {
+                set(COLOR, "Jammer");
+            }
+            if (f != null && f.getPosition().getFloorPosition() == FloorPosition.PIVOT) {
+                set(COLOR, "Pivot");
+            }
         }
         if (prop == FLAGS) {
             if ("C".equals(value)) {
@@ -152,55 +175,70 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
                 updateEligibility();
             }
         }
-        if (prop == BASE_ROLE && get(ROLE) == last) { set(ROLE, (Role) value, Flag.SPECIAL_CASE); }
+        if (prop == BASE_ROLE && get(ROLE) == last) {
+            set(ROLE, (Role) value, Flag.SPECIAL_CASE);
+        }
     }
 
     @Override
     public ScoreBoardEventProvider create(Child<? extends ScoreBoardEventProvider> prop, String id, Source source) {
         synchronized (coreLock) {
-            if (prop == PENALTY) { return new PenaltyImpl(this, Integer.valueOf(id)); }
+            if (prop == PENALTY) {
+                return new PenaltyImpl(this, Integer.valueOf(id));
+            }
             return null;
         }
     }
+
     @Override
     protected <T extends ValueWithId> boolean mayAdd(Child<T> prop, T item, Source source) {
         if (prop == FIELDING) {
             Fielding f = (Fielding) item;
             Fielding lf = getFielding(f.getTeamJam());
             if (lf != null && lf != f) {
-                for (BoxTrip bt : lf.getAll(Fielding.BOX_TRIP)) { f.add(Fielding.BOX_TRIP, bt); }
+                for (BoxTrip bt : lf.getAll(Fielding.BOX_TRIP)) {
+                    f.add(Fielding.BOX_TRIP, bt);
+                }
                 lf.removeAll(Fielding.BOX_TRIP);
                 lf.setSkater(null);
             }
         }
         return true;
     }
+
     @Override
     protected void itemAdded(Child<?> prop, ValueWithId item, Source source) {
         if (prop == PENALTY && !source.isFile()) {
             Penalty p = (Penalty) item;
-            if (FO_EXP_ID.equals(p.getProviderId())) { updateEligibility(); }
+            if (FO_EXP_ID.equals(p.getProviderId())) {
+                updateEligibility();
+            }
             if (p.getNumber() == game.getInt(Rule.FO_LIMIT)) {
                 Penalty fo = getPenalty(FO_EXP_ID);
                 if (fo == null) {
                     fo = getOrCreate(PENALTY, 0);
                     fo.set(Penalty.CODE, "FO");
                 }
-                if ("FO".equals(fo.get(Penalty.CODE))) { fo.set(Penalty.JAM, p.getJam()); }
+                if ("FO".equals(fo.get(Penalty.CODE))) {
+                    fo.set(Penalty.JAM, p.getJam());
+                }
             }
             if (!p.isServed() && getRole() == Role.JAMMER && getCurrentFielding() != null &&
-                !getCurrentFielding().getTeamJam().getOtherTeam().isLead() && game.isInJam()) {
+                    !getCurrentFielding().getTeamJam().getOtherTeam().isLead() && game.isInJam()) {
                 getTeam().set(Team.LOST, true);
             }
             if (!p.isServed() && !game.isInJam() && getRole(getTeam().getRunningOrUpcomingTeamJam()) == Role.BENCH) {
                 getTeam().field(this, getRole(getTeam().getRunningOrEndedTeamJam()),
-                                getTeam().getRunningOrUpcomingTeamJam());
+                        getTeam().getRunningOrUpcomingTeamJam());
             }
         } else if (prop == FIELDING) {
             Fielding f = (Fielding) item;
-            if (f.isCurrent()) { set(CURRENT_FIELDING, f); }
+            if (f.isCurrent()) {
+                set(CURRENT_FIELDING, f);
+            }
         }
     }
+
     @Override
     protected void itemRemoved(Child<?> prop, ValueWithId item, Source source) {
         if (prop == PENALTY) {
@@ -209,7 +247,9 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
                 game.remove(Game.EXPULSION, item.getId());
             } else if (get(PENALTY, game.getInt(Rule.FO_LIMIT)) == null) {
                 Penalty fo = getPenalty(FO_EXP_ID);
-                if (fo != null && "FO".equals(fo.get(Penalty.CODE))) { fo.delete(); }
+                if (fo != null && "FO".equals(fo.get(Penalty.CODE))) {
+                    fo.delete();
+                }
             }
         } else if (prop == FIELDING && getCurrentFielding() == item) {
             set(CURRENT_FIELDING, null);
@@ -225,6 +265,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     public String getName() {
         return get(NAME);
     }
+
     @Override
     public void setName(String n) {
         set(NAME, n);
@@ -234,6 +275,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     public String getRosterNumber() {
         return get(ROSTER_NUMBER);
     }
+
     @Override
     public void setRosterNumber(String n) {
         set(ROSTER_NUMBER, n);
@@ -242,18 +284,24 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     @Override
     public Fielding getFielding(TeamJam teamJam) {
         for (FloorPosition fp : FloorPosition.values()) {
-            Fielding f = get(FIELDING, teamJam.getId() + "_" + fp.toString());
-            if (f != null) { return f; }
+            Fielding f = get(FIELDING, teamJam.getId() + "_" + fp);
+            if (f != null) {
+                return f;
+            }
         }
         return null;
     }
+
     @Override
     public Fielding getCurrentFielding() {
         return get(CURRENT_FIELDING);
     }
+
     @Override
     public void removeCurrentFielding() {
-        if (getCurrentFielding() != null) { remove(FIELDING, getCurrentFielding()); }
+        if (getCurrentFielding() != null) {
+            remove(FIELDING, getCurrentFielding());
+        }
     }
 
     @Override
@@ -261,12 +309,13 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
         set(Skater.CURRENT_FIELDING, getFielding(teamJam));
         setRole(getRole(teamJam));
         updateEligibility();
-    };
+    }
 
     @Override
     public Position getPosition() {
         return get(POSITION);
     }
+
     @Override
     public void setPosition(Position p) {
         set(POSITION, p);
@@ -276,16 +325,21 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     public Role getRole() {
         return get(ROLE);
     }
+
     @Override
     public Role getRole(TeamJam tj) {
         Fielding f = getFielding(tj);
-        if (f == null) { return getBaseRole(); }
+        if (f == null) {
+            return getBaseRole();
+        }
         return f.getCurrentRole();
     }
+
     @Override
     public void setRole(Role r) {
         set(ROLE, r, Flag.SPECIAL_CASE);
     }
+
     @Override
     public void setRoleToBase() {
         setRole(getBaseRole());
@@ -295,6 +349,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     public Role getBaseRole() {
         return get(BASE_ROLE);
     }
+
     @Override
     public void setBaseRole(Role b) {
         set(BASE_ROLE, b);
@@ -302,7 +357,9 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
 
     @Override
     public void updateEligibility() {
-        if (getBaseRole() != Role.BENCH && getBaseRole() != Role.INELIGIBLE) { return; }
+        if (getBaseRole() != Role.BENCH && getBaseRole() != Role.INELIGIBLE) {
+            return;
+        }
         if (get(PENALTY, FO_EXP_ID) != null) {
             setBaseRole(Role.INELIGIBLE);
             return;
@@ -338,6 +395,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     public boolean isPenaltyBox() {
         return isPenaltyBox(false);
     }
+
     @Override
     public boolean isPenaltyBox(boolean checkUpcoming) {
         if (checkUpcoming && !game.isInJam() && getFielding(getTeam().getRunningOrUpcomingTeamJam()) != null) {
@@ -346,6 +404,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
             return get(PENALTY_BOX);
         }
     }
+
     @Override
     public void setPenaltyBox(boolean box) {
         set(PENALTY_BOX, box);
@@ -355,6 +414,7 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     public String getFlags() {
         return get(FLAGS);
     }
+
     @Override
     public void setFlags(String f) {
         set(FLAGS, f);
@@ -375,18 +435,23 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
     public Penalty getPenalty(String id) {
         return get(PENALTY, id);
     }
+
     @Override
     public List<Penalty> getUnservedPenalties() {
         List<Penalty> usp = new ArrayList<>();
         for (Penalty p : getAll(PENALTY)) {
-            if (!p.isServed() && !p.getProviderId().equals(FO_EXP_ID)) { usp.add(p); }
+            if (!p.isServed() && !p.getProviderId().equals(FO_EXP_ID)) {
+                usp.add(p);
+            }
         }
         return usp;
     }
+
     @Override
     public boolean hasUnservedPenalties() {
         return !getUnservedPenalties().isEmpty() || getExtraPenaltyTime() > 0L;
     }
+
     @Override
     public long getExtraPenaltyTime() {
         return get(EXTRA_PENALTY_TIME);
@@ -394,15 +459,27 @@ public class SkaterImpl extends ScoreBoardEventProviderImpl<Skater> implements S
 
     @Override
     public void mergeInto(PreparedSkater ps) {
-        if ("".equals(ps.get(NAME))) { ps.set(NAME, get(NAME)); }
-        if ("".equals(ps.get(ROSTER_NUMBER))) { ps.set(ROSTER_NUMBER, get(ROSTER_NUMBER)); }
-        if ("".equals(ps.get(PRONOUNS))) { ps.set(PRONOUNS, get(PRONOUNS)); }
-        if ("".equals(get(NAME))) { set(NAME, ps.get(NAME)); }
-        if ("".equals(get(ROSTER_NUMBER))) { set(ROSTER_NUMBER, ps.get(ROSTER_NUMBER)); }
-        if ("".equals(get(PRONOUNS))) { set(PRONOUNS, ps.get(PRONOUNS)); }
+        if ("".equals(ps.get(NAME))) {
+            ps.set(NAME, get(NAME));
+        }
+        if ("".equals(ps.get(ROSTER_NUMBER))) {
+            ps.set(ROSTER_NUMBER, get(ROSTER_NUMBER));
+        }
+        if ("".equals(ps.get(PRONOUNS))) {
+            ps.set(PRONOUNS, get(PRONOUNS));
+        }
+        if ("".equals(get(NAME))) {
+            set(NAME, ps.get(NAME));
+        }
+        if ("".equals(get(ROSTER_NUMBER))) {
+            set(ROSTER_NUMBER, ps.get(ROSTER_NUMBER));
+        }
+        if ("".equals(get(PRONOUNS))) {
+            set(PRONOUNS, ps.get(PRONOUNS));
+        }
         set(PREPARED_SKATER, ps);
     }
 
     protected Team team;
-    private Game game;
+    private final Game game;
 }

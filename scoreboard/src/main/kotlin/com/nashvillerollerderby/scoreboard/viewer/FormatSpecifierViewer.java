@@ -1,11 +1,5 @@
 package com.nashvillerollerderby.scoreboard.viewer;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.nashvillerollerderby.scoreboard.core.interfaces.Clock;
 import com.nashvillerollerderby.scoreboard.core.interfaces.CurrentGame;
 import com.nashvillerollerderby.scoreboard.core.interfaces.CurrentGame.CurrentSkater;
@@ -25,8 +19,16 @@ import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProvider;
 import com.nashvillerollerderby.scoreboard.event.Value;
 import com.nashvillerollerderby.scoreboard.utils.ValWithId;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class FormatSpecifierViewer {
-    public FormatSpecifierViewer(ScoreBoard sb) { setScoreBoard(sb); }
+    public FormatSpecifierViewer(ScoreBoard sb) {
+        setScoreBoard(sb);
+    }
 
     public Map<String, String> getFormatSpecifierDescriptions() {
         Map<String, String> m = new LinkedHashMap<>();
@@ -46,7 +48,9 @@ public class FormatSpecifierViewer {
     public String parse(String format) {
         StringBuffer buffer = new StringBuffer();
         Matcher m = formatPattern.matcher(format);
-        while (m.find()) { m.appendReplacement(buffer, getFormatSpecifierValue(m.group())); }
+        while (m.find()) {
+            m.appendReplacement(buffer, getFormatSpecifierValue(m.group()));
+        }
         m.appendTail(buffer);
         return buffer.toString();
     }
@@ -54,12 +58,16 @@ public class FormatSpecifierViewer {
     public boolean checkCondition(String format, ScoreBoardEvent<?> event) {
         boolean triggerCondition = true;
         Matcher m = conditionPattern.matcher(format);
-        if (!m.find()) { throw new IllegalArgumentException("No conditions in format : " + format); }
+        if (!m.find()) {
+            throw new IllegalArgumentException("No conditions in format : " + format);
+        }
         do {
             String specifier = m.group(1);
             String comparator = m.group(2);
             String targetValue = m.group(3);
-            if (null == comparator || null == targetValue) { continue; }
+            if (null == comparator || null == targetValue) {
+                continue;
+            }
             String value = scoreBoardValues.get(specifier).getValue();
             if (triggerCondition) {
                 triggerCondition = false;
@@ -71,28 +79,34 @@ public class FormatSpecifierViewer {
                 }
             }
             try {
-                if (!checkConditionValue(value, comparator, targetValue)) { return false; }
-            } catch (IllegalArgumentException iaE) { return false; }
+                if (!checkConditionValue(value, comparator, targetValue)) {
+                    return false;
+                }
+            } catch (IllegalArgumentException iaE) {
+                return false;
+            }
         } while (m.find());
         return true;
     }
 
     protected boolean checkConditionValue(String value, String comparator, String target)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         // Check to see if we're talking about times, and if so, de-time them.
         if (comparator.contains("<") || comparator.contains(">") || comparator.contains("%")) {
             // We're doing maths. Are they times? Times have colons.
             if (value.contains(":")) {
                 String[] s = value.split(":");
                 if (s.length == 2) try {
-                        value = String.valueOf(Long.parseLong(s[0]) * 60 + Long.parseLong(s[1]));
-                    } catch (NumberFormatException nfE) {}
+                    value = String.valueOf(Long.parseLong(s[0]) * 60 + Long.parseLong(s[1]));
+                } catch (NumberFormatException nfE) {
+                }
             }
             if (target.contains(":")) {
                 String[] s = target.split(":");
                 if (s.length == 2) try {
-                        target = String.valueOf(Long.parseLong(s[0]) * 60 + Long.parseLong(s[1]));
-                    } catch (NumberFormatException nfE) {}
+                    target = String.valueOf(Long.parseLong(s[0]) * 60 + Long.parseLong(s[1]));
+                } catch (NumberFormatException nfE) {
+                }
             }
         }
         if ("=".equals(comparator)) {
@@ -102,34 +116,42 @@ public class FormatSpecifierViewer {
         } else if ("<".equals(comparator)) {
             try {
                 return (Long.parseLong(value) < Long.parseLong(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             try {
                 return (Double.parseDouble(value) < Double.parseDouble(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             return (value.compareTo(target) < 0);
         } else if ("<=".equals(comparator)) {
             try {
                 return (Long.parseLong(value) <= Long.parseLong(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             try {
                 return (Double.parseDouble(value) <= Double.parseDouble(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             return (value.compareTo(target) <= 0);
         } else if (">".equals(comparator)) {
             try {
                 return (Long.parseLong(value) > Long.parseLong(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             try {
                 return (Double.parseDouble(value) > Double.parseDouble(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             return (value.compareTo(target) > 0);
         } else if (">=".equals(comparator)) {
             try {
                 return (Long.parseLong(value) >= Long.parseLong(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             try {
                 return (Double.parseDouble(value) >= Double.parseDouble(target));
-            } catch (NumberFormatException nfE) {}
+            } catch (NumberFormatException nfE) {
+            }
             return (value.compareTo(target) >= 0);
         } else if ("%".equals(comparator)) {
             try {
@@ -145,20 +167,26 @@ public class FormatSpecifierViewer {
 
     public ScoreBoardCondition<?> getScoreBoardCondition(String format) throws IllegalArgumentException {
         Matcher m = eventPattern.matcher(format);
-        if (!m.find()) { throw new IllegalArgumentException("No valid event specified"); }
+        if (!m.find()) {
+            throw new IllegalArgumentException("No valid event specified");
+        }
         return getFormatSpecifierScoreBoardCondition(m.group(1));
     }
 
     protected ScoreBoardCondition<?> getFormatSpecifierScoreBoardCondition(String formatSpecifier)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         ScoreBoardValue<?> value = scoreBoardValues.get(formatSpecifier);
-        if (null == value) { throw new IllegalArgumentException("Not a valid format specifier : " + formatSpecifier); }
+        if (null == value) {
+            throw new IllegalArgumentException("Not a valid format specifier : " + formatSpecifier);
+        }
         return value.getScoreBoardCondition();
     }
 
     protected String getFormatSpecifierValue(String formatSpecifier) {
         ScoreBoardValue<?> value = scoreBoardValues.get(formatSpecifier);
-        if (null == value) { return formatSpecifier; }
+        if (null == value) {
+            return formatSpecifier;
+        }
         return value.getValue();
     }
 
@@ -173,6 +201,7 @@ public class FormatSpecifierViewer {
                 TimeoutOwner to = getGame().get(Game.TIMEOUT_OWNER);
                 return to == null ? "" : to.getId();
             }
+
             @Override
             public ScoreBoardEventProvider getProvider() {
                 return getGame();
@@ -207,7 +236,9 @@ public class FormatSpecifierViewer {
 
         StringBuffer patternBuffer = new StringBuffer();
         Iterator<String> patterns = scoreBoardValues.keySet().iterator();
-        while (patterns.hasNext()) { patternBuffer.append(patterns.next() + "|"); }
+        while (patterns.hasNext()) {
+            patternBuffer.append(patterns.next() + "|");
+        }
         String specifiersRegex = patternBuffer.toString().replaceAll("[|]$", "");
         formatPattern = Pattern.compile(specifiersRegex);
         eventPattern = Pattern.compile("^\\s*(" + specifiersRegex + ")");
@@ -231,6 +262,7 @@ public class FormatSpecifierViewer {
                     return team == null ? "" : team.get(Team.INITIALS);
                 }
             }
+
             @Override
             public ScoreBoardEventProvider getProvider() {
                 return getTeam(id);
@@ -273,17 +305,19 @@ public class FormatSpecifierViewer {
             public String getPreviousValue(Object o) {
                 return getSkaterName((CurrentSkater) o);
             }
+
             @Override
             public ScoreBoardEventProvider getProvider() {
                 return getPosition(id, fp);
             }
         };
-        new ScoreBoardValue<String>("%t" + t + p + "N", "Team " + t + " " + fp.toString() + " Number",
-                                    Position.ROSTER_NUMBER) {
+        new ScoreBoardValue<String>("%t" + t + p + "N", "Team " + t + " " + fp + " Number",
+                Position.ROSTER_NUMBER) {
             @Override
             public String getPreviousValue(Object o) {
                 return getSkaterNumber((CurrentSkater) o);
             }
+
             @Override
             public ScoreBoardEventProvider getProvider() {
                 return getPosition(id, fp);
@@ -291,7 +325,9 @@ public class FormatSpecifierViewer {
         };
     }
 
-    protected MirrorScoreBoardEventProvider<Team> getTeam(String id) { return getGame().getMirror(Game.TEAM, id); }
+    protected MirrorScoreBoardEventProvider<Team> getTeam(String id) {
+        return getGame().getMirror(Game.TEAM, id);
+    }
 
     protected MirrorScoreBoardEventProvider<Position> getPosition(String id, FloorPosition position) {
         MirrorScoreBoardEventProvider<Team> team = getTeam(id);
@@ -301,6 +337,7 @@ public class FormatSpecifierViewer {
     protected String getSkaterName(MirrorScoreBoardEventProvider<Skater> s) {
         return (null == s ? NO_SKATER_NAME_VALUE : s.get(Skater.NAME));
     }
+
     protected String getSkaterNumber(MirrorScoreBoardEventProvider<Skater> s) {
         return (null == s ? NO_SKATER_NUMBER_VALUE : s.get(Skater.ROSTER_NUMBER));
     }
@@ -329,10 +366,12 @@ public class FormatSpecifierViewer {
             public String getValue() {
                 return getClockSecs(id);
             }
+
             @Override
             public String getPreviousValue(Object o) {
                 return getClockSecs(((Long) o), getClock(id).get(Clock.DIRECTION));
             }
+
             @Override
             public ScoreBoardEventProvider getProvider() {
                 return getClock(id);
@@ -343,10 +382,12 @@ public class FormatSpecifierViewer {
             public String getValue() {
                 return getClockMinSecs(id);
             }
+
             @Override
             public String getPreviousValue(Object o) {
                 return getClockMinSecs(((Long) o), getClock(id).get(Clock.DIRECTION));
             }
+
             @Override
             public ScoreBoardEventProvider getProvider() {
                 return getClock(id);
@@ -354,31 +395,44 @@ public class FormatSpecifierViewer {
         };
     }
 
-    protected MirrorScoreBoardEventProvider<Clock> getClock(String id) { return getGame().getMirror(Game.CLOCK, id); }
+    protected MirrorScoreBoardEventProvider<Clock> getClock(String id) {
+        return getGame().getMirror(Game.CLOCK, id);
+    }
 
     protected String getClockSecs(String id) {
         MirrorScoreBoardEventProvider<Clock> clock = getClock(id);
         return clock == null ? "0" : getClockSecs(clock.get(Clock.TIME), clock.get(Clock.DIRECTION));
     }
+
     protected String getClockSecs(long time, boolean roundUp) {
         long roundedTime = time / 1000;
-        if (roundUp && time % 1000 != 0) { roundedTime++; }
+        if (roundUp && time % 1000 != 0) {
+            roundedTime++;
+        }
         return String.valueOf(roundedTime);
     }
+
     protected String getClockMinSecs(String id) {
         MirrorScoreBoardEventProvider<Clock> clock = getClock(id);
         return clock == null ? "0" : getClockMinSecs(clock.get(Clock.TIME), clock.get(Clock.DIRECTION));
     }
+
     protected String getClockMinSecs(long time, boolean roundUp) {
         long roundedTime = time / 1000;
-        if (roundUp && time % 1000 != 0) { roundedTime++; }
+        if (roundUp && time % 1000 != 0) {
+            roundedTime++;
+        }
         String min = String.valueOf(roundedTime / 60);
         String sec = String.valueOf(roundedTime % 60);
-        if (sec.length() == 1) { sec = "0" + sec; }
+        if (sec.length() == 1) {
+            sec = "0" + sec;
+        }
         return min + ":" + sec;
     }
 
-    protected CurrentGame getGame() { return scoreBoard.getCurrentGame(); }
+    protected CurrentGame getGame() {
+        return scoreBoard.getCurrentGame();
+    }
 
     protected ScoreBoard scoreBoard = null;
 
@@ -398,19 +452,36 @@ public class FormatSpecifierViewer {
             updateCondition();
             scoreBoardValues.put(format, this);
         }
+
         public String getValue() {
             ScoreBoardEventProvider provider = getProvider();
             return provider == null ? "" : String.valueOf(provider.get((Value<T>) property));
         }
+
         public abstract ScoreBoardEventProvider getProvider();
-        public String getPreviousValue(Object value) { return String.valueOf(value); }
-        public String getDescription() { return description; }
-        public ScoreBoardCondition<T> getScoreBoardCondition() { return scoreBoardCondition; }
-        public void setListener(ConditionalScoreBoardListener<T> listener) { this.listener = listener; }
+
+        public String getPreviousValue(Object value) {
+            return String.valueOf(value);
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public ScoreBoardCondition<T> getScoreBoardCondition() {
+            return scoreBoardCondition;
+        }
+
+        public void setListener(ConditionalScoreBoardListener<T> listener) {
+            this.listener = listener;
+        }
+
         public void updateCondition() {
             ScoreBoardEventProvider provider = getProvider();
             scoreBoardCondition = new ScoreBoardCondition<>(provider == null ? scoreBoard : provider, property);
-            if (listener != null) { listener.setCondition(scoreBoardCondition); }
+            if (listener != null) {
+                listener.setCondition(scoreBoardCondition);
+            }
         }
 
         protected String format;

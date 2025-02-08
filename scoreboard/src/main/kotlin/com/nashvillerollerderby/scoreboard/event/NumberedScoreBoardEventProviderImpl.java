@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class NumberedScoreBoardEventProviderImpl<C extends NumberedScoreBoardEventProvider<C>>
-    extends OrderedScoreBoardEventProviderImpl<C> implements NumberedScoreBoardEventProvider<C> {
+        extends OrderedScoreBoardEventProviderImpl<C> implements NumberedScoreBoardEventProvider<C> {
 
     protected NumberedScoreBoardEventProviderImpl(ScoreBoardEventProvider parent, int number, NumberedChild<C> type) {
         super(parent, UUID.randomUUID().toString(), type);
@@ -21,13 +21,19 @@ public abstract class NumberedScoreBoardEventProviderImpl<C extends NumberedScor
 
     @Override
     public int compareTo(NumberedScoreBoardEventProvider<?> other) {
-        if (other == null) { return -1; }
-        if (getParent() == other.getParent()) { return getNumber() - other.getNumber(); }
-        if (getParent() == null) { return 1; }
+        if (other == null) {
+            return -1;
+        }
+        if (getParent() == other.getParent()) {
+            return getNumber() - other.getNumber();
+        }
+        if (getParent() == null) {
+            return 1;
+        }
         if (getParent() instanceof NumberedScoreBoardEventProvider<?> && other.getParent() instanceof
-                                                                             NumberedScoreBoardEventProvider<?>) {
+                NumberedScoreBoardEventProvider<?>) {
             return ((NumberedScoreBoardEventProvider<?>) getParent())
-                .compareTo((NumberedScoreBoardEventProvider<?>) other.getParent());
+                    .compareTo((NumberedScoreBoardEventProvider<?>) other.getParent());
         }
         return getParent().compareTo(other.getParent());
     }
@@ -40,7 +46,9 @@ public abstract class NumberedScoreBoardEventProviderImpl<C extends NumberedScor
             unlinkNeighbors();
         }
         super.delete(source);
-        if (next != null && next.getNumber() == getNumber() + 1) { next.set(NUMBER, getNumber(), Source.RENUMBER); }
+        if (next != null && next.getNumber() == getNumber() + 1) {
+            next.set(NUMBER, getNumber(), Source.RENUMBER);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -52,6 +60,7 @@ public abstract class NumberedScoreBoardEventProviderImpl<C extends NumberedScor
         }
         return value;
     }
+
     @SuppressWarnings("unchecked")
     @Override
     protected <T> void _valueChanged(Value<T> prop, T value, T last, Source source, Flag flag) {
@@ -72,7 +81,9 @@ public abstract class NumberedScoreBoardEventProviderImpl<C extends NumberedScor
     @Override
     public void moveToNumber(int num) {
         synchronized (coreLock) {
-            if (num == getNumber()) { return; }
+            if (num == getNumber()) {
+                return;
+            }
             unlinkNeighbors();
             setNeighbors(num);
             set(NUMBER, num, Source.RENUMBER);
@@ -86,6 +97,7 @@ public abstract class NumberedScoreBoardEventProviderImpl<C extends NumberedScor
             getNext().setPrevious(getPrevious());
         }
     }
+
     public void setNeighbors(int targetPosition) {
         if (parent.get(ownType, targetPosition) != null) {
             C replaced = parent.get(ownType, targetPosition);
@@ -110,7 +122,9 @@ public abstract class NumberedScoreBoardEventProviderImpl<C extends NumberedScor
             setNext(next);
         } else {
             int n = targetPosition + 1;
-            while (parent.get(ownType, n) == null) { n++; }
+            while (parent.get(ownType, n) == null) {
+                n++;
+            }
             C next = parent.get(ownType, n);
             setPrevious(next.getPrevious());
             setNext(next);

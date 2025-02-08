@@ -16,11 +16,11 @@ public class ExpulsionImpl extends ScoreBoardEventProviderImpl<Expulsion> implem
         penalty = p;
         addProperties(props);
         setRecalculated(INFO)
-            .addSource(p, Penalty.CODE)
-            .addSource(p, Penalty.JAM_NUMBER)
-            .addSource(p, Penalty.PERIOD_NUMBER)
-            .addSource(p.getParent(), Skater.ROSTER_NUMBER)
-            .addSource(p.getParent().getParent(), Team.DISPLAY_NAME);
+                .addSource(p, Penalty.CODE)
+                .addSource(p, Penalty.JAM_NUMBER)
+                .addSource(p, Penalty.PERIOD_NUMBER)
+                .addSource(p.getParent(), Skater.ROSTER_NUMBER)
+                .addSource(p.getParent().getParent(), Team.DISPLAY_NAME);
         set(INFO, "");
     }
 
@@ -36,6 +36,6 @@ public class ExpulsionImpl extends ScoreBoardEventProviderImpl<Expulsion> implem
         return value;
     }
 
-    private Game game;
-    private Penalty penalty;
+    private final Game game;
+    private final Penalty penalty;
 }

@@ -1,5 +1,13 @@
 package com.nashvillerollerderby.scoreboard.json;
 
+import com.fasterxml.jackson.jr.ob.JSON;
+import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard;
+import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProvider.Source;
+import com.nashvillerollerderby.scoreboard.utils.Log4j2Logging;
+import io.prometheus.client.Histogram;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,17 +20,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.nashvillerollerderby.scoreboard.utils.Log4j2Logging;
-import org.apache.commons.io.FileUtils;
-
-import com.fasterxml.jackson.jr.ob.JSON;
-
-import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard;
-import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProvider.Source;
-
-import io.prometheus.client.Histogram;
-import org.apache.logging.log4j.Logger;
-
 public class AutoSaveJSONState implements Runnable {
 
     private final Logger logger = Log4j2Logging.getLogger(this);
@@ -32,10 +29,10 @@ public class AutoSaveJSONState implements Runnable {
         this.jsm = jsm;
         this.useMetrics = useMetrics;
         autosaveDuration = useMetrics ? Histogram.build()
-                                            .name("crg_json_autosave_write_duration_seconds")
-                                            .help("Time spent writing JSON autosaves to disk")
-                                            .register()
-                                      : null;
+                .name("crg_json_autosave_write_duration_seconds")
+                .help("Time spent writing JSON autosaves to disk")
+                .register()
+                : null;
 
         try {
             FileUtils.forceMkdir(dir);
@@ -56,13 +53,17 @@ public class AutoSaveJSONState implements Runnable {
             while (n > 0) {
                 File to = getFile(n);
                 File from = getFile(--n);
-                if (from.exists()) { from.renameTo(to); }
+                if (from.exists()) {
+                    from.renameTo(to);
+                }
             }
             writeAutoSave(getFile(0));
         } catch (Exception e) {
             logger.warn("Unable to auto-save scoreboard : {}", e.getMessage(), e);
         }
-        if (useMetrics) { timer.observeDuration(); }
+        if (useMetrics) {
+            timer.observeDuration();
+        }
     }
 
     private void writeAutoSave(File file) {
@@ -70,11 +71,11 @@ public class AutoSaveJSONState implements Runnable {
         OutputStreamWriter out = null;
         try {
             String json = JSON.std.with(JSON.Feature.PRETTY_PRINT_OUTPUT)
-                              .composeString()
-                              .startObject()
-                              .putObject("state", jsm.getState())
-                              .end()
-                              .finish();
+                    .composeString()
+                    .startObject()
+                    .putObject("state", jsm.getState())
+                    .end()
+                    .finish();
             tmp = File.createTempFile(file.getName(), ".tmp", dir);
             out = new OutputStreamWriter(new FileOutputStream(tmp), StandardCharsets.UTF_8);
             out.write(json);
@@ -86,12 +87,14 @@ public class AutoSaveJSONState implements Runnable {
             if (out != null) {
                 try {
                     out.close();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
             if (tmp != null) {
                 try {
                     tmp.delete();
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         }
     }
@@ -117,7 +120,10 @@ public class AutoSaveJSONState implements Runnable {
         }
     }
 
-    public File getFile(int n) { return getFile(n, dir); }
+    public File getFile(int n) {
+        return getFile(n, dir);
+    }
+
     public static File getFile(int n, File dir) {
         return new File(dir, ("scoreboard-" + (n * INTERVAL_SECONDS) + "-secs-ago.json"));
     }
@@ -126,7 +132,9 @@ public class AutoSaveJSONState implements Runnable {
         Logger logger = Log4j2Logging.getLogger(AutoSaveJSONState.class);
         for (int i = 0; i <= AUTOSAVE_FILES; i++) {
             File f = getFile(i, dir);
-            if (!f.exists()) { continue; }
+            if (!f.exists()) {
+                continue;
+            }
             try {
                 loadFile(scoreBoard, f, Source.AUTOSAVE);
                 logger.info("Loaded auto-saved scoreboard from {}", f.getPath());
@@ -148,10 +156,10 @@ public class AutoSaveJSONState implements Runnable {
         ScoreBoardJSONSetter.set(scoreBoard, state, source);
     }
 
-    private File dir;
-    private JSONStateManager jsm;
-    private boolean useMetrics;
-    private ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final File dir;
+    private final JSONStateManager jsm;
+    private final boolean useMetrics;
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private static final int AUTOSAVE_FILES = 6;
     private static final int INTERVAL_SECONDS = 10;

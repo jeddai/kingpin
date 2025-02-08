@@ -1,33 +1,60 @@
 package com.nashvillerollerderby.scoreboard.core.interfaces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.nashvillerollerderby.scoreboard.event.MirrorScoreBoardEventProvider;
 import com.nashvillerollerderby.scoreboard.event.Property;
 import com.nashvillerollerderby.scoreboard.event.Value;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public interface CurrentGame extends MirrorScoreBoardEventProvider<Game> {
-    public void postAutosaveUpdate();
+    void postAutosaveUpdate();
 
-    public void load(Game g);
+    void load(Game g);
 
-    public static Collection<Property<?>> props = new ArrayList<>();
+    Collection<Property<?>> props = new ArrayList<>();
 
-    public static final Value<Game> GAME = new Value<>(Game.class, "Game", null, props);
+    Value<Game> GAME = new Value<>(Game.class, "Game", null, props);
 
-    public static interface CurrentClock extends MirrorScoreBoardEventProvider<Clock> {}
-    public static interface CurrentTeam extends MirrorScoreBoardEventProvider<Team> {}
-    public static interface CurrentSkater extends MirrorScoreBoardEventProvider<Skater> {}
-    public static interface CurrentPenalty extends MirrorScoreBoardEventProvider<Penalty> {}
-    public static interface CurrentPosition extends MirrorScoreBoardEventProvider<Position> {}
-    public static interface CurrentBoxTrip extends MirrorScoreBoardEventProvider<BoxTrip> {}
-    public static interface CurrentPeriod extends MirrorScoreBoardEventProvider<Period> {}
-    public static interface CurrentJam extends MirrorScoreBoardEventProvider<Jam> {}
-    public static interface CurrentTeamJam extends MirrorScoreBoardEventProvider<TeamJam> {}
-    public static interface CurrentFielding extends MirrorScoreBoardEventProvider<Fielding> {}
-    public static interface CurrentScoringTrip extends MirrorScoreBoardEventProvider<ScoringTrip> {}
-    public static interface CurrentTimeout extends MirrorScoreBoardEventProvider<Timeout> {}
-    public static interface CurrentOfficial extends MirrorScoreBoardEventProvider<Official> {}
-    public static interface CurrentExpulsion extends MirrorScoreBoardEventProvider<Expulsion> {}
+    interface CurrentClock extends MirrorScoreBoardEventProvider<Clock> {
+    }
+
+    interface CurrentTeam extends MirrorScoreBoardEventProvider<Team> {
+    }
+
+    interface CurrentSkater extends MirrorScoreBoardEventProvider<Skater> {
+    }
+
+    interface CurrentPenalty extends MirrorScoreBoardEventProvider<Penalty> {
+    }
+
+    interface CurrentPosition extends MirrorScoreBoardEventProvider<Position> {
+    }
+
+    interface CurrentBoxTrip extends MirrorScoreBoardEventProvider<BoxTrip> {
+    }
+
+    interface CurrentPeriod extends MirrorScoreBoardEventProvider<Period> {
+    }
+
+    interface CurrentJam extends MirrorScoreBoardEventProvider<Jam> {
+    }
+
+    interface CurrentTeamJam extends MirrorScoreBoardEventProvider<TeamJam> {
+    }
+
+    interface CurrentFielding extends MirrorScoreBoardEventProvider<Fielding> {
+    }
+
+    interface CurrentScoringTrip extends MirrorScoreBoardEventProvider<ScoringTrip> {
+    }
+
+    interface CurrentTimeout extends MirrorScoreBoardEventProvider<Timeout> {
+    }
+
+    interface CurrentOfficial extends MirrorScoreBoardEventProvider<Official> {
+    }
+
+    interface CurrentExpulsion extends MirrorScoreBoardEventProvider<Expulsion> {
+    }
 }

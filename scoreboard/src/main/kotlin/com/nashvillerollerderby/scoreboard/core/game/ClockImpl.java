@@ -1,7 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.game;
 
-import java.util.ArrayList;
-
 import com.nashvillerollerderby.scoreboard.core.interfaces.BoxTrip;
 import com.nashvillerollerderby.scoreboard.core.interfaces.Clock;
 import com.nashvillerollerderby.scoreboard.core.interfaces.Game;
@@ -16,6 +14,8 @@ import com.nashvillerollerderby.scoreboard.event.Value;
 import com.nashvillerollerderby.scoreboard.rules.Rule;
 import com.nashvillerollerderby.scoreboard.utils.ClockConversion;
 import com.nashvillerollerderby.scoreboard.utils.ScoreBoardClock;
+
+import java.util.ArrayList;
 
 public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clock {
     public ClockImpl(BoxTrip bt) {
@@ -32,6 +32,7 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
         setMaximumTime(game.getLong(Rule.PENALTY_DURATION));
         resetTime();
     }
+
     public ClockImpl(Game g, String i) {
         super(g, g.getId() + "_" + i, Game.CLOCK);
         game = g;
@@ -72,14 +73,16 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
                 }
             }
             if ((flag == Flag.RESET && isCountDirectionDown()) ||
-                (Long) value > getMaximumTime() + 500 && (!isCountDirectionDown() || source != Source.RECALCULATE)) {
+                    (Long) value > getMaximumTime() + 500 && (!isCountDirectionDown() || source != Source.RECALCULATE)) {
                 return getMaximumTime();
             }
-            if ((flag == Flag.RESET && !isCountDirectionDown()) || (!isPenaltyClock && (Long) value < 0 - 500)) {
+            if ((flag == Flag.RESET && !isCountDirectionDown()) || (!isPenaltyClock && (Long) value < -500)) {
                 return Long.valueOf(0);
             }
         }
-        if (prop == INVERTED_TIME) { return getMaximumTime() - getTime(); }
+        if (prop == INVERTED_TIME) {
+            return getMaximumTime() - getTime();
+        }
         if (prop == MAXIMUM_TIME && subId.equals(ID_JAM) && source == Source.RECALCULATE) {
             if (game.isInJam() && game.getCurrentPeriod().getCurrentJam().isInjuryContinuation()) {
                 value = last;
@@ -89,17 +92,26 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
                 value = game.getLong(Rule.JAM_DURATION);
             }
         }
-        if (prop == MAXIMUM_TIME && (Long) value < 0) { return Long.valueOf(0); }
-        if (prop == NUMBER && (Integer) value < 0) { return 0; }
+        if (prop == MAXIMUM_TIME && (Long) value < 0) {
+            return Long.valueOf(0);
+        }
+        if (prop == NUMBER && (Integer) value < 0) {
+            return 0;
+        }
         return value;
     }
+
     @Override
     protected void valueChanged(Value<?> prop, Object value, Object last, Source source, Flag flag) {
-        if (prop == TIME && isTimeAtEnd() && !isPenaltyClock) { stop(); }
+        if (prop == TIME && isTimeAtEnd() && !isPenaltyClock) {
+            stop();
+        }
         if (prop == MAXIMUM_TIME && isCountDirectionDown() && !source.isFile()) {
             changeTime((Long) value - (Long) last);
         }
-        if (prop == DIRECTION) { setTime(getInvertedTime()); }
+        if (prop == DIRECTION) {
+            setTime(getInvertedTime());
+        }
         if (prop == RUNNING) {
             if ((Boolean) value) {
                 updateClockTimerTask.addClock(this, flag == Flag.SPECIAL_CASE);
@@ -145,16 +157,23 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
 
     @Override
     public ClockSnapshot snapshot() {
-        synchronized (coreLock) { return new ClockSnapshotImpl(this); }
+        synchronized (coreLock) {
+            return new ClockSnapshotImpl(this);
+        }
     }
+
     @Override
     public void restoreSnapshot(ClockSnapshot s) {
         synchronized (coreLock) {
-            if (s.getId() != getId()) { return; }
+            if (s.getId() != getId()) {
+                return;
+            }
             setNumber(s.getNumber());
             stop();
             set(TIME, isCountDirectionDown() ? getMaximumTime() - s.getTime() : s.getTime(), Flag.SPECIAL_CASE);
-            if (s.isRunning()) { start(); }
+            if (s.isRunning()) {
+                start();
+            }
         }
     }
 
@@ -162,16 +181,21 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     public String getName() {
         return get(NAME);
     }
-    public void setName(String n) { set(NAME, n); }
+
+    public void setName(String n) {
+        set(NAME, n);
+    }
 
     @Override
     public int getNumber() {
         return get(NUMBER);
     }
+
     @Override
     public void setNumber(int n) {
         set(NUMBER, n);
     }
+
     @Override
     public void changeNumber(int change) {
         set(NUMBER, change, Flag.CHANGE);
@@ -181,36 +205,48 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     public long getTime() {
         return get(TIME);
     }
+
     @Override
     public long getInvertedTime() {
         return get(INVERTED_TIME);
     }
+
     @Override
     public long getTimeElapsed() {
         synchronized (coreLock) {
             return isTimeAtEnd() ? getMaximumTime() : isCountDirectionDown() ? getInvertedTime() : getTime();
         }
     }
+
     @Override
     public long getTimeRemaining() {
-        synchronized (coreLock) { return isTimeAtEnd() ? 0L : isCountDirectionDown() ? getTime() : getInvertedTime(); }
+        synchronized (coreLock) {
+            return isTimeAtEnd() ? 0L : isCountDirectionDown() ? getTime() : getInvertedTime();
+        }
     }
+
     @Override
     public void setTime(long ms) {
         set(TIME, ms);
     }
+
     @Override
     public void changeTime(long change) {
         set(TIME, change, Flag.CHANGE);
     }
+
     @Override
     public void elapseTime(long change) {
-        synchronized (coreLock) { changeTime(isCountDirectionDown() ? -change : change); }
+        synchronized (coreLock) {
+            changeTime(isCountDirectionDown() ? -change : change);
+        }
     }
+
     @Override
     public void resetTime() {
         set(TIME, getTime(), Flag.RESET);
     }
+
     protected boolean isDisplayChange(long current, long last) {
         // the frontend rounds values that are not full seconds to the earlier second
         // i.e. 3600ms will be displayed as 3s on a count up clock and as 4s on a count
@@ -226,14 +262,17 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     public long getMaximumTime() {
         return get(MAXIMUM_TIME);
     }
+
     @Override
     public void setMaximumTime(long ms) {
         set(MAXIMUM_TIME, ms);
     }
+
     @Override
     public void changeMaximumTime(long change) {
         set(MAXIMUM_TIME, change, Flag.CHANGE);
     }
+
     @Override
     public boolean isTimeAtStart(long t) {
         synchronized (coreLock) {
@@ -244,10 +283,12 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
             }
         }
     }
+
     @Override
     public boolean isTimeAtStart() {
         return isTimeAtStart(getTime());
     }
+
     @Override
     public boolean isTimeAtEnd(long t) {
         synchronized (coreLock) {
@@ -258,6 +299,7 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
             }
         }
     }
+
     @Override
     public boolean isTimeAtEnd() {
         return isTimeAtEnd(getTime());
@@ -267,6 +309,7 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     public boolean isCountDirectionDown() {
         return get(DIRECTION);
     }
+
     @Override
     public void setCountDirectionDown(boolean down) {
         set(DIRECTION, down);
@@ -281,7 +324,11 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     public void start() {
         start(false);
     }
-    public void start(boolean quickAdd) { set(RUNNING, Boolean.TRUE, quickAdd ? Flag.SPECIAL_CASE : null); }
+
+    public void start(boolean quickAdd) {
+        set(RUNNING, Boolean.TRUE, quickAdd ? Flag.SPECIAL_CASE : null);
+    }
+
     @Override
     public void stop() {
         set(RUNNING, Boolean.FALSE);
@@ -296,7 +343,9 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     }
 
     protected void timerTick(long delta) {
-        if (!isRunning()) { return; }
+        if (!isRunning()) {
+            return;
+        }
         lastTime += delta;
         long newTime = isCountDirectionDown() ? getTime() - delta : getTime() + delta;
         long newInvertedTime = getMaximumTime() - newTime;
@@ -313,7 +362,9 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
         long duration = isRunning() ? getMaximumTime() : DEFAULT_MAXIMUM_TIME;
         String[] sequence = game.get(Rule.INTERMISSION_DURATIONS).split(",");
         int number = Math.min(game.getCurrentPeriodNumber(), sequence.length);
-        if (number > 0) { duration = ClockConversion.fromHumanReadable(sequence[number - 1]); }
+        if (number > 0) {
+            duration = ClockConversion.fromHumanReadable(sequence[number - 1]);
+        }
         return duration;
     }
 
@@ -325,15 +376,17 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     private long floorDiv(long x, long y) {
         long r = x / y;
         // if the signs are different and modulo not zero, round down
-        if ((x ^ y) < 0 && (r * y != x)) { r--; }
+        if ((x ^ y) < 0 && (r * y != x)) {
+            r--;
+        }
         return r;
     }
 
     protected long lastTime;
     protected boolean isPenaltyClock = false;
 
-    private Game game;
-    private String subId;
+    private final Game game;
+    private final String subId;
 
     public static UpdateClockTimerTask updateClockTimerTask = new UpdateClockTimerTask();
 
@@ -352,14 +405,17 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
         public String getId() {
             return id;
         }
+
         @Override
         public int getNumber() {
             return number;
         }
+
         @Override
         public long getTime() {
             return time;
         }
+
         @Override
         public boolean isRunning() {
             return isRunning;
@@ -372,7 +428,7 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
     }
 
     protected static class UpdateClockTimerTask implements ScoreBoardClock.ScoreBoardClockClient {
-        private static long update_interval = ScoreBoardClock.CLOCK_UPDATE_INTERVAL;
+        private static final long update_interval = ScoreBoardClock.CLOCK_UPDATE_INTERVAL;
 
         public UpdateClockTimerTask() {
             startSystemTime = scoreBoardClock.getCurrentTime();
@@ -386,14 +442,22 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
                     // with respect to the running clocks.
                     ClockImpl masterClock = clocks.get(0);
                     long nowMs = masterClock.getTime() % 1000;
-                    if (masterClock.isCountDirectionDown()) { nowMs = (1000 - nowMs) % 1000; }
+                    if (masterClock.isCountDirectionDown()) {
+                        nowMs = (1000 - nowMs) % 1000;
+                    }
 
                     long timeMs = c.getTime() % 1000;
-                    if (c.isCountDirectionDown()) { timeMs = (1000 - timeMs) % 1000; }
+                    if (c.isCountDirectionDown()) {
+                        timeMs = (1000 - timeMs) % 1000;
+                    }
                     long delay = timeMs - nowMs;
-                    if (Math.abs(delay) >= 500) { delay = (long) (Math.signum(-delay) * (1000 - Math.abs(delay))); }
+                    if (Math.abs(delay) >= 500) {
+                        delay = (long) (Math.signum(-delay) * (1000 - Math.abs(delay)));
+                    }
                     c.lastTime = currentTime;
-                    if (c.isCountDirectionDown()) { delay = -delay; }
+                    if (c.isCountDirectionDown()) {
+                        delay = -delay;
+                    }
                     c.values.put(TIME, c.getTime() - delay);
                 } else {
                     c.lastTime = currentTime;
@@ -403,7 +467,9 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
         }
 
         public void removeClock(ClockImpl c) {
-            synchronized (coreLock) { clocks.remove(c); }
+            synchronized (coreLock) {
+                clocks.remove(c);
+            }
         }
 
         private void tick() {
@@ -414,7 +480,9 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
                     sb.runInBatch(new Runnable() {
                         @Override
                         public void run() {
-                            for (ClockImpl clock : new ArrayList<>(clocks)) { clock.timerTick(update_interval); }
+                            for (ClockImpl clock : new ArrayList<>(clocks)) {
+                                clock.timerTick(update_interval);
+                            }
                         }
                     });
                 }
@@ -431,9 +499,11 @@ public class ClockImpl extends ScoreBoardEventProviderImpl<Clock> implements Clo
             }
         }
 
-        public long getCurrentTime() { return currentTime; }
+        public long getCurrentTime() {
+            return currentTime;
+        }
 
-        private ScoreBoardClock scoreBoardClock = ScoreBoardClock.getInstance();
+        private final ScoreBoardClock scoreBoardClock = ScoreBoardClock.getInstance();
         private long currentTime = 0;
         private long startSystemTime = 0;
         private long ticks = 0;

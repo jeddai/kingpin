@@ -15,11 +15,14 @@ public class CopyValueScoreBoardListener<T> extends CopyScoreBoardListener<T> {
     public void scoreBoardChange(ScoreBoardEvent<?> event) {
         scoreBoardChange((ScoreBoardEvent<T>) event, Source.COPY);
     }
+
     // used when sending updates from the copy to the master value
     @Override
     @SuppressWarnings("unchecked")
     public void scoreBoardChange(ScoreBoardEvent<T> event, Source source) {
-        if (isActive() && targetElement != null) { targetElement.set(targetProperty, event.getValue(), source); }
+        if (isActive() && targetElement != null) {
+            targetElement.set(targetProperty, event.getValue(), source);
+        }
     }
 
     protected ScoreBoardEventProvider targetElement;

@@ -95,7 +95,8 @@ class JamImpl(p: ScoreBoardEventProvider?, j: Int) : NumberedScoreBoardEventProv
                         Period.CURRENT_JAM,
                         previous
                     )
-                } else { }
+                } else {
+                }
             } else if (prop === Jam.INSERT_BEFORE) {
                 if (parent is Period) {
                     parent.add(ownType, JamImpl(parent, number))
@@ -104,7 +105,8 @@ class JamImpl(p: ScoreBoardEventProvider?, j: Int) : NumberedScoreBoardEventProv
                     val newJam: Jam = JamImpl(currentPeriod, number)
                     currentPeriod.add(ownType, newJam)
                     set(NUMBER, 1, ScoreBoardEventProvider.Source.RENUMBER, ScoreBoardEventProvider.Flag.CHANGE)
-                } else { }
+                } else {
+                }
             } else if (prop === Jam.INSERT_TIMEOUT_AFTER) {
                 val newTo: Timeout = TimeoutImpl(this)
                 newTo.set(Timeout.RUNNING, false)
@@ -118,7 +120,8 @@ class JamImpl(p: ScoreBoardEventProvider?, j: Int) : NumberedScoreBoardEventProv
                             get(Jam.PERIOD_CLOCK_ELAPSED_END)
                 )
                 period.add(Period.TIMEOUT, newTo)
-            } else { }
+            } else {
+            }
         }
     }
 

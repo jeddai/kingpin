@@ -1,8 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.interfaces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.nashvillerollerderby.scoreboard.event.Child;
 import com.nashvillerollerderby.scoreboard.event.Command;
 import com.nashvillerollerderby.scoreboard.event.NumberedChild;
@@ -10,72 +7,91 @@ import com.nashvillerollerderby.scoreboard.event.ParentOrderedScoreBoardEventPro
 import com.nashvillerollerderby.scoreboard.event.Property;
 import com.nashvillerollerderby.scoreboard.event.Value;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public interface TeamJam extends ParentOrderedScoreBoardEventProvider<TeamJam> {
-    public Jam getJam();
-    public Team getTeam();
+    Jam getJam();
 
-    public TeamJam getOtherTeam();
+    Team getTeam();
 
-    public void setupInjuryContinuation();
+    TeamJam getOtherTeam();
 
-    public boolean isRunningOrEnded();
-    public boolean isRunningOrUpcoming();
+    void setupInjuryContinuation();
 
-    public int getLastScore();
-    public void setLastScore(int l);
+    boolean isRunningOrEnded();
 
-    public int getOsOffset();
-    public void setOsOffset(int o);
-    public void changeOsOffset(int c);
-    public void possiblyChangeOsOffset(int amount);
-    public boolean possiblyChangeOsOffset(int amount, Jam jamRecorded, boolean recordedInJam,
-                                          boolean recordedInLastTwoMins);
+    boolean isRunningOrUpcoming();
 
-    public int getJamScore();
-    public int getTotalScore();
+    int getLastScore();
 
-    public ScoringTrip getCurrentScoringTrip();
-    public void addScoringTrip();
-    public void removeScoringTrip();
+    void setLastScore(int l);
 
-    public boolean isLost();
-    public boolean isLead();
-    public boolean isCalloff();
-    public boolean isInjury();
-    public boolean isDisplayLead();
+    int getOsOffset();
 
-    public boolean isStarPass();
-    public ScoringTrip getStarPassTrip();
+    void setOsOffset(int o);
 
-    public boolean hasNoPivot();
-    public void setNoPivot(boolean np);
+    void changeOsOffset(int c);
 
-    public Fielding getFielding(FloorPosition fp);
+    void possiblyChangeOsOffset(int amount);
 
-    public static Collection<Property<?>> props = new ArrayList<>();
+    boolean possiblyChangeOsOffset(int amount, Jam jamRecorded, boolean recordedInJam,
+                                   boolean recordedInLastTwoMins);
 
-    public static final Value<ScoringTrip> CURRENT_TRIP = new Value<>(ScoringTrip.class, "CurrentTrip", null, props);
-    public static final Value<Integer> CURRENT_TRIP_NUMBER = new Value<>(Integer.class, "CurrentTripNumber", 0, props);
-    public static final Value<Integer> LAST_SCORE = new Value<>(Integer.class, "LastScore", 0, props);
-    public static final Value<Integer> OS_OFFSET = new Value<>(Integer.class, "OsOffset", 0, props);
-    public static final Value<String> OS_OFFSET_REASON = new Value<>(String.class, "OsOffsetReason", "", props);
-    public static final Value<Integer> JAM_SCORE = new Value<>(Integer.class, "JamScore", 0, props);
-    public static final Value<Integer> AFTER_S_P_SCORE = new Value<>(Integer.class, "AfterSPScore", 0, props);
-    public static final Value<Integer> TOTAL_SCORE = new Value<>(Integer.class, "TotalScore", 0, props);
-    public static final Value<Boolean> LOST = new Value<>(Boolean.class, "Lost", false, props);
-    public static final Value<Boolean> LEAD = new Value<>(Boolean.class, "Lead", false, props);
-    public static final Value<Boolean> CALLOFF = new Value<>(Boolean.class, "Calloff", false, props);
-    public static final Value<Boolean> NO_INITIAL = new Value<>(Boolean.class, "NoInitial", true, props);
-    public static final Value<Boolean> INJURY = new Value<>(Boolean.class, "Injury", false, props);
-    public static final Value<Boolean> DISPLAY_LEAD = new Value<>(Boolean.class, "DisplayLead", false, props);
-    public static final Value<Boolean> STAR_PASS = new Value<>(Boolean.class, "StarPass", false, props);
-    public static final Value<ScoringTrip> STAR_PASS_TRIP = new Value<>(ScoringTrip.class, "StarPassTrip", null, props);
-    public static final Value<Boolean> NO_PIVOT = new Value<>(Boolean.class, "NoPivot", false, props);
+    int getJamScore();
 
-    public static final Child<Fielding> FIELDING = new Child<>(Fielding.class, "Fielding", props);
+    int getTotalScore();
 
-    public static final NumberedChild<ScoringTrip> SCORING_TRIP =
-        new NumberedChild<>(ScoringTrip.class, "ScoringTrip", props);
+    ScoringTrip getCurrentScoringTrip();
 
-    public static final Command COPY_LINEUP_TO_CURRENT = new Command("CopyLineupToCurrent", props);
+    void addScoringTrip();
+
+    void removeScoringTrip();
+
+    boolean isLost();
+
+    boolean isLead();
+
+    boolean isCalloff();
+
+    boolean isInjury();
+
+    boolean isDisplayLead();
+
+    boolean isStarPass();
+
+    ScoringTrip getStarPassTrip();
+
+    boolean hasNoPivot();
+
+    void setNoPivot(boolean np);
+
+    Fielding getFielding(FloorPosition fp);
+
+    Collection<Property<?>> props = new ArrayList<>();
+
+    Value<ScoringTrip> CURRENT_TRIP = new Value<>(ScoringTrip.class, "CurrentTrip", null, props);
+    Value<Integer> CURRENT_TRIP_NUMBER = new Value<>(Integer.class, "CurrentTripNumber", 0, props);
+    Value<Integer> LAST_SCORE = new Value<>(Integer.class, "LastScore", 0, props);
+    Value<Integer> OS_OFFSET = new Value<>(Integer.class, "OsOffset", 0, props);
+    Value<String> OS_OFFSET_REASON = new Value<>(String.class, "OsOffsetReason", "", props);
+    Value<Integer> JAM_SCORE = new Value<>(Integer.class, "JamScore", 0, props);
+    Value<Integer> AFTER_S_P_SCORE = new Value<>(Integer.class, "AfterSPScore", 0, props);
+    Value<Integer> TOTAL_SCORE = new Value<>(Integer.class, "TotalScore", 0, props);
+    Value<Boolean> LOST = new Value<>(Boolean.class, "Lost", false, props);
+    Value<Boolean> LEAD = new Value<>(Boolean.class, "Lead", false, props);
+    Value<Boolean> CALLOFF = new Value<>(Boolean.class, "Calloff", false, props);
+    Value<Boolean> NO_INITIAL = new Value<>(Boolean.class, "NoInitial", true, props);
+    Value<Boolean> INJURY = new Value<>(Boolean.class, "Injury", false, props);
+    Value<Boolean> DISPLAY_LEAD = new Value<>(Boolean.class, "DisplayLead", false, props);
+    Value<Boolean> STAR_PASS = new Value<>(Boolean.class, "StarPass", false, props);
+    Value<ScoringTrip> STAR_PASS_TRIP = new Value<>(ScoringTrip.class, "StarPassTrip", null, props);
+    Value<Boolean> NO_PIVOT = new Value<>(Boolean.class, "NoPivot", false, props);
+
+    Child<Fielding> FIELDING = new Child<>(Fielding.class, "Fielding", props);
+
+    NumberedChild<ScoringTrip> SCORING_TRIP =
+            new NumberedChild<>(ScoringTrip.class, "ScoringTrip", props);
+
+    Command COPY_LINEUP_TO_CURRENT = new Command("CopyLineupToCurrent", props);
 }

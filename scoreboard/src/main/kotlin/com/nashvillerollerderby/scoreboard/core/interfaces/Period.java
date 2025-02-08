@@ -1,8 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.interfaces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.nashvillerollerderby.scoreboard.event.Child;
 import com.nashvillerollerderby.scoreboard.event.Command;
 import com.nashvillerollerderby.scoreboard.event.NumberedChild;
@@ -10,54 +7,65 @@ import com.nashvillerollerderby.scoreboard.event.NumberedScoreBoardEventProvider
 import com.nashvillerollerderby.scoreboard.event.Property;
 import com.nashvillerollerderby.scoreboard.event.Value;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public interface Period extends NumberedScoreBoardEventProvider<Period> {
-    public Game getGame();
+    Game getGame();
 
-    public PeriodSnapshot snapshot();
-    public void restoreSnapshot(PeriodSnapshot s);
+    PeriodSnapshot snapshot();
 
-    public boolean isSuddenScoring();
+    void restoreSnapshot(PeriodSnapshot s);
 
-    public boolean isRunning();
+    boolean isSuddenScoring();
 
-    public Jam getJam(int j);
-    public Jam getInitialJam();
-    public Jam getCurrentJam();
-    public int getCurrentJamNumber();
+    boolean isRunning();
 
-    public void startJam();
-    public void stopJam();
+    Jam getJam(int j);
 
-    public long getDuration();
-    public long getWalltimeStart();
-    public long getWalltimeEnd();
+    Jam getInitialJam();
 
-    public static Collection<Property<?>> props = new ArrayList<>();
+    Jam getCurrentJam();
 
-    public static final Value<Jam> CURRENT_JAM = new Value<>(Jam.class, "CurrentJam", null, props);
-    public static final Value<Integer> CURRENT_JAM_NUMBER = new Value<>(Integer.class, "CurrentJamNumber", 0, props);
-    public static final Value<Boolean> SUDDEN_SCORING = new Value<>(Boolean.class, "SuddenScoring", false, props);
-    public static final Value<Boolean> RUNNING = new Value<>(Boolean.class, "Running", false, props);
-    public static final Value<Long> DURATION = new Value<>(Long.class, "Duration", 0L, props);
-    public static final Value<Long> WALLTIME_START = new Value<>(Long.class, "WalltimeStart", 0L, props);
-    public static final Value<Long> WALLTIME_END = new Value<>(Long.class, "WalltimeEnd", 0L, props);
-    public static final Value<String> LOCAL_TIME_START = new Value<>(String.class, "LocalTimeStart", "", props);
-    public static final Value<Integer> TEAM_1_PENALTY_COUNT = new Value<>(Integer.class, "Team1PenaltyCount", 0, props);
-    public static final Value<Integer> TEAM_2_PENALTY_COUNT = new Value<>(Integer.class, "Team2PenaltyCount", 0, props);
-    public static final Value<Integer> TEAM_1_POINTS = new Value<>(Integer.class, "Team1Points", 0, props);
-    public static final Value<Integer> TEAM_2_POINTS = new Value<>(Integer.class, "Team2Points", 0, props);
+    int getCurrentJamNumber();
 
-    public static final Child<Timeout> TIMEOUT = new Child<>(Timeout.class, "Timeout", props);
+    void startJam();
 
-    public static final NumberedChild<Jam> JAM = new NumberedChild<>(Jam.class, "Jam", props);
+    void stopJam();
 
-    public static final Command DELETE = new Command("Delete", props);
-    public static final Command INSERT_BEFORE = new Command("InsertBefore", props);
-    public static final Command INSERT_TIMEOUT = new Command("InsertTimeout", props);
-    public static final Command ADD_INITIAL_JAM = new Command("AddInitialJam", props);
+    long getDuration();
 
-    public static interface PeriodSnapshot {
-        public String getId();
-        public Jam getCurrentJam();
+    long getWalltimeStart();
+
+    long getWalltimeEnd();
+
+    Collection<Property<?>> props = new ArrayList<>();
+
+    Value<Jam> CURRENT_JAM = new Value<>(Jam.class, "CurrentJam", null, props);
+    Value<Integer> CURRENT_JAM_NUMBER = new Value<>(Integer.class, "CurrentJamNumber", 0, props);
+    Value<Boolean> SUDDEN_SCORING = new Value<>(Boolean.class, "SuddenScoring", false, props);
+    Value<Boolean> RUNNING = new Value<>(Boolean.class, "Running", false, props);
+    Value<Long> DURATION = new Value<>(Long.class, "Duration", 0L, props);
+    Value<Long> WALLTIME_START = new Value<>(Long.class, "WalltimeStart", 0L, props);
+    Value<Long> WALLTIME_END = new Value<>(Long.class, "WalltimeEnd", 0L, props);
+    Value<String> LOCAL_TIME_START = new Value<>(String.class, "LocalTimeStart", "", props);
+    Value<Integer> TEAM_1_PENALTY_COUNT = new Value<>(Integer.class, "Team1PenaltyCount", 0, props);
+    Value<Integer> TEAM_2_PENALTY_COUNT = new Value<>(Integer.class, "Team2PenaltyCount", 0, props);
+    Value<Integer> TEAM_1_POINTS = new Value<>(Integer.class, "Team1Points", 0, props);
+    Value<Integer> TEAM_2_POINTS = new Value<>(Integer.class, "Team2Points", 0, props);
+
+    Child<Timeout> TIMEOUT = new Child<>(Timeout.class, "Timeout", props);
+
+    NumberedChild<Jam> JAM = new NumberedChild<>(Jam.class, "Jam", props);
+
+    Command DELETE = new Command("Delete", props);
+    Command INSERT_BEFORE = new Command("InsertBefore", props);
+    Command INSERT_TIMEOUT = new Command("InsertTimeout", props);
+    Command ADD_INITIAL_JAM = new Command("AddInitialJam", props);
+
+    interface PeriodSnapshot {
+        String getId();
+
+        Jam getCurrentJam();
     }
 }

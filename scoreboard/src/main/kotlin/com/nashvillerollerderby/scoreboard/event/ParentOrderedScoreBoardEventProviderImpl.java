@@ -1,7 +1,7 @@
 package com.nashvillerollerderby.scoreboard.event;
 
 public abstract class ParentOrderedScoreBoardEventProviderImpl<C extends ParentOrderedScoreBoardEventProvider<C>>
-    extends OrderedScoreBoardEventProviderImpl<C> implements ParentOrderedScoreBoardEventProvider<C> {
+        extends OrderedScoreBoardEventProviderImpl<C> implements ParentOrderedScoreBoardEventProvider<C> {
     protected ParentOrderedScoreBoardEventProviderImpl(OrderedScoreBoardEventProvider<?> parent, String subId,
                                                        Child<C> type) {
         super(parent, parent.getId() + "_" + subId, type);

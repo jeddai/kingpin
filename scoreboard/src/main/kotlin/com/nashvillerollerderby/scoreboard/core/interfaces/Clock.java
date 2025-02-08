@@ -1,106 +1,125 @@
 package com.nashvillerollerderby.scoreboard.core.interfaces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.nashvillerollerderby.scoreboard.event.Command;
 import com.nashvillerollerderby.scoreboard.event.Property;
 import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProvider;
 import com.nashvillerollerderby.scoreboard.event.Value;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public interface Clock extends ScoreBoardEventProvider {
-    public ClockSnapshot snapshot();
-    public void restoreSnapshot(ClockSnapshot s);
+    ClockSnapshot snapshot();
 
-    public void start();
-    public void stop();
-    public void restart();
+    void restoreSnapshot(ClockSnapshot s);
 
-    public String getName();
+    void start();
 
-    public int getNumber();
-    public void setNumber(int n);
-    public void changeNumber(int n);
+    void stop();
+
+    void restart();
+
+    String getName();
+
+    int getNumber();
+
+    void setNumber(int n);
+
+    void changeNumber(int n);
 
     /**
-     *
      * @return The time displayed on the clock (in ms)
      */
-    public long getTime();
-    public void setTime(long ms);
+    long getTime();
+
+    void setTime(long ms);
+
     /**
      * Add time to the clock.
      *
      * @param ms The amount of change (can be negative)
      */
-    public void changeTime(long ms);
+    void changeTime(long ms);
+
     /**
-     *
      * @return The clock's maximum time minus the time displayed on the clock (in
-     *         ms)
+     * ms)
      */
-    public long getInvertedTime();
+    long getInvertedTime();
+
     /**
-     *
      * @return The time the clock has run (in ms). This is either the time or
-     *         inverted time depending on the direction of the clock
+     * inverted time depending on the direction of the clock
      */
-    public long getTimeElapsed();
+    long getTimeElapsed();
+
     /**
      * Change the clock in the direction it is running. This function is the inverse
      * of changeTime(), when the clock counts down.
      *
      * @param ms The amount of change (can be negative)
      */
-    public void elapseTime(long ms);
-    public void resetTime();
+    void elapseTime(long ms);
+
+    void resetTime();
+
     /**
-     *
      * @return The time until the clock reaches its maximum or zero (in ms). This is
-     *         the inverse of getTimeElapsed.
+     * the inverse of getTimeElapsed.
      */
-    public long getTimeRemaining();
-    public long getMaximumTime();
-    public void setMaximumTime(long ms);
-    public void changeMaximumTime(long ms);
-    public boolean isTimeAtStart(long time);
-    public boolean isTimeAtStart();
-    public boolean isTimeAtEnd(long time);
-    public boolean isTimeAtEnd();
+    long getTimeRemaining();
 
-    public boolean isRunning();
+    long getMaximumTime();
 
-    public boolean isCountDirectionDown();
-    public void setCountDirectionDown(boolean down);
+    void setMaximumTime(long ms);
 
-    public long getCurrentIntermissionTime();
+    void changeMaximumTime(long ms);
 
-    public static interface ClockSnapshot {
-        public String getId();
-        public int getNumber();
-        public long getTime();
-        public boolean isRunning();
+    boolean isTimeAtStart(long time);
+
+    boolean isTimeAtStart();
+
+    boolean isTimeAtEnd(long time);
+
+    boolean isTimeAtEnd();
+
+    boolean isRunning();
+
+    boolean isCountDirectionDown();
+
+    void setCountDirectionDown(boolean down);
+
+    long getCurrentIntermissionTime();
+
+    interface ClockSnapshot {
+        String getId();
+
+        int getNumber();
+
+        long getTime();
+
+        boolean isRunning();
     }
 
-    public static Collection<Property<?>> props = new ArrayList<>();
+    Collection<Property<?>> props = new ArrayList<>();
 
-    public static final Value<String> NAME = new Value<>(String.class, "Name", "", props);
-    public static final Value<Integer> NUMBER = new Value<>(Integer.class, "Number", 0, props);
-    public static final Value<Long> TIME = new Value<>(Long.class, "Time", 0L, props);
-    public static final Value<Long> INVERTED_TIME = new Value<>(Long.class, "InvertedTime", 0L, props);
-    public static final Value<Long> MAXIMUM_TIME = new Value<>(Long.class, "MaximumTime", 0L, props);
-    public static final Value<Boolean> DIRECTION = new Value<>(Boolean.class, "Direction", false, props);
-    public static final Value<Boolean> RUNNING = new Value<>(Boolean.class, "Running", false, props);
+    Value<String> NAME = new Value<>(String.class, "Name", "", props);
+    Value<Integer> NUMBER = new Value<>(Integer.class, "Number", 0, props);
+    Value<Long> TIME = new Value<>(Long.class, "Time", 0L, props);
+    Value<Long> INVERTED_TIME = new Value<>(Long.class, "InvertedTime", 0L, props);
+    Value<Long> MAXIMUM_TIME = new Value<>(Long.class, "MaximumTime", 0L, props);
+    Value<Boolean> DIRECTION = new Value<>(Boolean.class, "Direction", false, props);
+    Value<Boolean> RUNNING = new Value<>(Boolean.class, "Running", false, props);
 
-    public static final Command START = new Command("Start", props);
-    public static final Command STOP = new Command("Stop", props);
-    public static final Command RESET_TIME = new Command("ResetTime", props);
+    Command START = new Command("Start", props);
+    Command STOP = new Command("Stop", props);
+    Command RESET_TIME = new Command("ResetTime", props);
 
-    public static final String SETTING_SYNC = "ScoreBoard.Clock.Sync";
+    String SETTING_SYNC = "ScoreBoard.Clock.Sync";
 
-    public static final String ID_PERIOD = "Period";
-    public static final String ID_JAM = "Jam";
-    public static final String ID_LINEUP = "Lineup";
-    public static final String ID_TIMEOUT = "Timeout";
-    public static final String ID_INTERMISSION = "Intermission";
+    String ID_PERIOD = "Period";
+    String ID_JAM = "Jam";
+    String ID_LINEUP = "Lineup";
+    String ID_TIMEOUT = "Timeout";
+    String ID_INTERMISSION = "Intermission";
 }

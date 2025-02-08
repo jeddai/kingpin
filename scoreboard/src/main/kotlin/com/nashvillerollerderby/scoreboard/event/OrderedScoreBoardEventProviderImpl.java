@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class OrderedScoreBoardEventProviderImpl<C extends OrderedScoreBoardEventProvider<C>>
-    extends ScoreBoardEventProviderImpl<C> implements OrderedScoreBoardEventProvider<C> {
+        extends ScoreBoardEventProviderImpl<C> implements OrderedScoreBoardEventProvider<C> {
     @SuppressWarnings("unchecked")
     public OrderedScoreBoardEventProviderImpl(ScoreBoardEventProvider parent, String id, Child<C> type) {
         super(parent, id, type);
@@ -30,22 +30,27 @@ public abstract class OrderedScoreBoardEventProviderImpl<C extends OrderedScoreB
     public C getPrevious() {
         return get(PREVIOUS);
     }
+
     @Override
     public boolean hasPrevious() {
         return getPrevious() != null;
     }
+
     @Override
     public void setPrevious(C prev) {
         set(PREVIOUS, prev);
     }
+
     @Override
     public C getNext() {
         return get(NEXT);
     }
+
     @Override
     public boolean hasNext() {
         return getNext() != null;
     }
+
     @Override
     public void setNext(C next) {
         set(NEXT, next);

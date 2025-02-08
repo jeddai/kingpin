@@ -1,8 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.admin;
 
-import java.util.Objects;
-import java.util.UUID;
-
 import com.nashvillerollerderby.scoreboard.core.interfaces.Clients;
 import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard;
 import com.nashvillerollerderby.scoreboard.event.Child;
@@ -12,6 +9,9 @@ import com.nashvillerollerderby.scoreboard.event.Value;
 import com.nashvillerollerderby.scoreboard.utils.HumanIdGenerator;
 import com.nashvillerollerderby.scoreboard.utils.Log4j2Logging;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements Clients {
 
@@ -25,14 +25,18 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
 
     @Override
     public void postAutosaveUpdate() {
-        if (get(NEW_DEVICE_WRITE)) { return; }
+        if (get(NEW_DEVICE_WRITE)) {
+            return;
+        }
         boolean hasWritableClient = false;
         for (Device d : getAll(DEVICE)) {
-            if (d.mayWrite()) { hasWritableClient = true; }
+            if (d.mayWrite()) {
+                hasWritableClient = true;
+            }
         }
         if (!hasWritableClient) {
             logger.info(
-                "No device with write access remaining -- enabling write access for new devices and local device");
+                    "No device with write access remaining -- enabling write access for new devices and local device");
             set(NEW_DEVICE_WRITE, true);
             set(ALL_LOCAL_DEVICES_WRITE, true);
         }
@@ -49,7 +53,9 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
             d.set(Device.REMOTE_ADDR, remoteAddr);
             c.set(Client.PLATFORM, platform);
             d.add(Device.CLIENT, c);
-            if (platform != null) { d.set(Device.PLATFORM, platform); }
+            if (platform != null) {
+                d.set(Device.PLATFORM, platform);
+            }
             c.set(Client.CREATED, System.currentTimeMillis());
             requestBatchEnd();
             return c;
@@ -58,7 +64,9 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
 
     @Override
     public void removeClient(Client c) {
-        synchronized (coreLock) { c.delete(Source.UNLINK); }
+        synchronized (coreLock) {
+            c.delete(Source.UNLINK);
+        }
     }
 
     @Override
@@ -80,7 +88,9 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
     public Device getDevice(String sessionId) {
         synchronized (coreLock) {
             for (Device d : getAll(DEVICE)) {
-                if (d.get(Device.SESSION_ID_SECRET).equals(sessionId)) { return d; }
+                if (d.get(Device.SESSION_ID_SECRET).equals(sessionId)) {
+                    return d;
+                }
             }
             return null;
         }
@@ -117,7 +127,9 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
     protected Device getDeviceByName(String name) {
         synchronized (coreLock) {
             for (Device d : getAll(DEVICE)) {
-                if (d.get(Device.NAME).equals(name)) { return d; }
+                if (d.get(Device.NAME).equals(name)) {
+                    return d;
+                }
             }
             return null;
         }
@@ -129,8 +141,12 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
             int removed = 0;
             requestBatchStart();
             for (Device d : getAll(DEVICE)) {
-                if (d.get(Device.ACCESSED) > gcBefore) { continue; }
-                if (!d.get(Device.COMMENT).isEmpty()) { continue; }
+                if (d.get(Device.ACCESSED) > gcBefore) {
+                    continue;
+                }
+                if (!d.get(Device.COMMENT).isEmpty()) {
+                    continue;
+                }
                 remove(DEVICE, d.getId());
                 removed++;
             }
@@ -171,7 +187,9 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
 
         @Override
         public String getName() {
-            synchronized (coreLock) { return get(NAME); }
+            synchronized (coreLock) {
+                return get(NAME);
+            }
         }
 
         @Override
@@ -185,14 +203,15 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
         public Boolean isLocal() {
             synchronized (coreLock) {
                 String address = get(REMOTE_ADDR);
-                if ("127.0.0.1".equals(address) || "0:0:0:0:0:0:0:1".equals(address)) { return true; }
-                return false;
+                return "127.0.0.1".equals(address) || "0:0:0:0:0:0:0:1".equals(address);
             }
         }
 
         @Override
         public void access() {
-            synchronized (coreLock) { set(ACCESSED, System.currentTimeMillis()); }
+            synchronized (coreLock) {
+                set(ACCESSED, System.currentTimeMillis());
+            }
         }
 
         @Override
@@ -209,7 +228,9 @@ public class ClientsImpl extends ScoreBoardEventProviderImpl<Clients> implements
                 return numberOf(CLIENT);
             } else if (!source.isInternal() && prop != COMMENT && prop != MAY_WRITE) {
                 // Only allow changing values from WS/load if they didn't already have one.
-                if (!Objects.equals(last, prop.getDefaultValue())) { return last; }
+                if (!Objects.equals(last, prop.getDefaultValue())) {
+                    return last;
+                }
             }
             return value;
         }

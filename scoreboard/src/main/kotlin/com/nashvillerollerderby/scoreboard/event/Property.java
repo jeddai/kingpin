@@ -6,7 +6,9 @@ public abstract class Property<T> {
     public Property(Class<T> type, String jsonName, Collection<Property<?>> propsToAddTo) {
         this.type = type;
         this.jsonName = jsonName;
-        if (propsToAddTo != null) { propsToAddTo.add(this); }
+        if (propsToAddTo != null) {
+            propsToAddTo.add(this);
+        }
     }
 
     @Override
@@ -14,9 +16,14 @@ public abstract class Property<T> {
         return jsonName;
     }
 
-    public Class<T> getType() { return type; }
-    public String getJsonName() { return jsonName; }
+    public Class<T> getType() {
+        return type;
+    }
 
-    private Class<T> type;
-    private String jsonName;
+    public String getJsonName() {
+        return jsonName;
+    }
+
+    private final Class<T> type;
+    private final String jsonName;
 }

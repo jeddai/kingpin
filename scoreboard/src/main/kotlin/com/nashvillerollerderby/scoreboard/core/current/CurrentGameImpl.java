@@ -1,11 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.current;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-
 import com.nashvillerollerderby.scoreboard.core.game.GameImpl;
 import com.nashvillerollerderby.scoreboard.core.interfaces.BoxTrip;
 import com.nashvillerollerderby.scoreboard.core.interfaces.Clock;
@@ -39,6 +33,12 @@ import com.nashvillerollerderby.scoreboard.event.ScoreBoardListener;
 import com.nashvillerollerderby.scoreboard.event.Value;
 import com.nashvillerollerderby.scoreboard.event.ValueWithId;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
+
 public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, CurrentGame> implements CurrentGame {
     @SuppressWarnings("unchecked")
     public CurrentGameImpl(ScoreBoard sb) {
@@ -51,8 +51,12 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
                 addMirrorCopy((Child<? extends ScoreBoardEventProvider>) prop);
             } else {
                 addProperties(prop);
-                if (prop instanceof Value<?>) { setCopy((Value<?>) prop); }
-                if (prop instanceof Child<?>) { setCopy((Child<?>) prop); }
+                if (prop instanceof Value<?>) {
+                    setCopy((Value<?>) prop);
+                }
+                if (prop instanceof Child<?>) {
+                    setCopy((Child<?>) prop);
+                }
             }
         }
     }
@@ -65,14 +69,18 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
     @Override
     protected Object computeValue(Value<?> prop, Object value, Object last, Source source, Flag flag) {
         if (prop == GAME && (!source.isFile() || value != null)) {
-            if (last != null) { elements.get(CurrentGame.class).remove(((Game) last).getId()); }
+            if (last != null) {
+                elements.get(CurrentGame.class).remove(((Game) last).getId());
+            }
             if (value == null && last != null) {
                 // having no current game will brake lots of things, so inhibit that
                 value = new GameImpl(scoreBoard, UUID.randomUUID().toString());
                 scoreBoard.add(ScoreBoard.GAME, (Game) value);
             }
             sourceElement = (Game) value;
-            if (value != null) { elements.get(CurrentGame.class).put(((Game) value).getId(), this); }
+            if (value != null) {
+                elements.get(CurrentGame.class).put(((Game) value).getId(), this);
+            }
         } else if (source.isFile()) {
             return last;
         }
@@ -84,12 +92,12 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
         if (prop == GAME && value != null) {
             Game g = (Game) value;
             if (g.get(Game.EVENT_INFO, Game.INFO_START_TIME) != null &&
-                !"".equals(g.get(Game.EVENT_INFO, Game.INFO_START_TIME).getValue())) {
+                    !"".equals(g.get(Game.EVENT_INFO, Game.INFO_START_TIME).getValue())) {
                 try {
                     LocalTime time = LocalTime.parse(g.get(Game.EVENT_INFO, Game.INFO_START_TIME).getValue());
                     LocalDate date = "".equals(g.get(Game.EVENT_INFO, Game.INFO_DATE).getValue())
-                                         ? LocalDate.now()
-                                         : LocalDate.parse(g.get(Game.EVENT_INFO, Game.INFO_DATE).getValue());
+                            ? LocalDate.now()
+                            : LocalDate.parse(g.get(Game.EVENT_INFO, Game.INFO_DATE).getValue());
                     long timeToStart = ChronoUnit.MILLIS.between(LocalDateTime.now(), LocalDateTime.of(date, time));
                     if (timeToStart > 0) {
                         Clock ic = g.getClock(Clock.ID_INTERMISSION);
@@ -97,7 +105,8 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
                         ic.resetTime();
                         ic.start();
                     }
-                } catch (Exception e) {} // if parsing fails just set no time to derby
+                } catch (Exception e) {
+                } // if parsing fails just set no time to derby
             }
         }
     }
@@ -106,6 +115,7 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
     protected <T> void setCopy(Value<T> prop) {
         setCopy(prop, this, GAME, prop, false);
     }
+
     @Override
     protected <T extends ValueWithId> void setCopy(Child<T> prop) {
         setCopy(prop, this, GAME, prop, false);
@@ -115,19 +125,19 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
     protected <T extends ScoreBoardEventProvider> void addMirrorCopy(final Child<T> sourceProperty) {
         @SuppressWarnings("unchecked")
         Child<MirrorScoreBoardEventProvider<T>> targetProperty =
-            (Child<MirrorScoreBoardEventProvider<T>>) reversePropertyMap.get(sourceProperty);
+                (Child<MirrorScoreBoardEventProvider<T>>) reversePropertyMap.get(sourceProperty);
         propertyMap.put(targetProperty, sourceProperty);
         reversePropertyMap.put(sourceProperty, targetProperty);
         addProperties(targetProperty);
         ScoreBoardListener l = new IndirectScoreBoardListener<>(
-            this, GAME, sourceProperty, new ChildToMirrorScoreBoardListener<>(this, targetProperty));
+                this, GAME, sourceProperty, new ChildToMirrorScoreBoardListener<>(this, targetProperty));
         providers.put(l, null);
         ScoreBoardListener reverseListener = new ConditionalScoreBoardListener<>(this, GAME, new ScoreBoardListener() {
             @Override
             public void scoreBoardChange(ScoreBoardEvent<?> event) {
                 reverseCopyListeners.put(
-                    targetProperty, new ChildFromMirrorScoreBoardListener<>((ScoreBoardEventProvider) event.getValue(),
-                                                                            sourceProperty));
+                        targetProperty, new ChildFromMirrorScoreBoardListener<>((ScoreBoardEventProvider) event.getValue(),
+                                sourceProperty));
             }
         });
         addScoreBoardListener(reverseListener);
@@ -153,7 +163,7 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
         addClassMapping(Expulsion.class, CurrentExpulsion.class);
 
         addPropertyMapping(Game.CLOCK, Game.TEAM, Game.PERIOD, Period.JAM, Team.BOX_TRIP, Game.REF, Game.NSO,
-                           Game.EXPULSION);
+                Game.EXPULSION);
     }
 
     @Override
@@ -179,85 +189,130 @@ public class CurrentGameImpl extends MirrorScoreBoardEventProviderImpl<Game, Cur
     }
 
     public static class CurrentClockImpl
-        extends MirrorScoreBoardEventProviderImpl<Clock, CurrentClock> implements CurrentClock {
-        CurrentClockImpl(ScoreBoardEventProvider parent, Clock sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Clock, CurrentClock> implements CurrentClock {
+        CurrentClockImpl(ScoreBoardEventProvider parent, Clock sourceElement) {
+            super(parent, sourceElement);
+        }
     }
+
     public static class CurrentTeamImpl
-        extends MirrorScoreBoardEventProviderImpl<Team, CurrentTeam> implements CurrentTeam {
-        CurrentTeamImpl(ScoreBoardEventProvider parent, Team sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Team, CurrentTeam> implements CurrentTeam {
+        CurrentTeamImpl(ScoreBoardEventProvider parent, Team sourceElement) {
+            super(parent, sourceElement);
+        }
+
         @Override
         protected void fillMaps() {
             addPropertyMapping(Team.SKATER, Team.POSITION, Team.BOX_TRIP);
         }
     }
+
     public static class CurrentSkaterImpl
-        extends MirrorScoreBoardEventProviderImpl<Skater, CurrentSkater> implements CurrentSkater {
-        CurrentSkaterImpl(ScoreBoardEventProvider parent, Skater sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Skater, CurrentSkater> implements CurrentSkater {
+        CurrentSkaterImpl(ScoreBoardEventProvider parent, Skater sourceElement) {
+            super(parent, sourceElement);
+        }
+
         @Override
         protected void fillMaps() {
             addPropertyMapping(Skater.PENALTY);
         }
     }
+
     public static class CurrentPenaltyImpl
-        extends MirrorScoreBoardEventProviderImpl<Penalty, CurrentPenalty> implements CurrentPenalty {
-        CurrentPenaltyImpl(ScoreBoardEventProvider parent, Penalty sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Penalty, CurrentPenalty> implements CurrentPenalty {
+        CurrentPenaltyImpl(ScoreBoardEventProvider parent, Penalty sourceElement) {
+            super(parent, sourceElement);
+        }
     }
+
     public static class CurrentPositionImpl
-        extends MirrorScoreBoardEventProviderImpl<Position, CurrentPosition> implements CurrentPosition {
-        CurrentPositionImpl(ScoreBoardEventProvider parent, Position sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Position, CurrentPosition> implements CurrentPosition {
+        CurrentPositionImpl(ScoreBoardEventProvider parent, Position sourceElement) {
+            super(parent, sourceElement);
+        }
     }
+
     public static class CurrentBoxTripImpl
-        extends MirrorScoreBoardEventProviderImpl<BoxTrip, CurrentBoxTrip> implements CurrentBoxTrip {
-        CurrentBoxTripImpl(ScoreBoardEventProvider parent, BoxTrip sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<BoxTrip, CurrentBoxTrip> implements CurrentBoxTrip {
+        CurrentBoxTripImpl(ScoreBoardEventProvider parent, BoxTrip sourceElement) {
+            super(parent, sourceElement);
+        }
+
         @Override
         protected void fillMaps() {
             addPropertyMapping(BoxTrip.CLOCK);
         }
     }
+
     public static class CurrentPeriodImpl
-        extends MirrorScoreBoardEventProviderImpl<Period, CurrentPeriod> implements CurrentPeriod {
-        CurrentPeriodImpl(ScoreBoardEventProvider parent, Period sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Period, CurrentPeriod> implements CurrentPeriod {
+        CurrentPeriodImpl(ScoreBoardEventProvider parent, Period sourceElement) {
+            super(parent, sourceElement);
+        }
+
         @Override
         protected void fillMaps() {
             addPropertyMapping(Period.JAM, Period.TIMEOUT);
         }
     }
+
     public static class CurrentJamImpl
-        extends MirrorScoreBoardEventProviderImpl<Jam, CurrentJam> implements CurrentJam {
-        CurrentJamImpl(ScoreBoardEventProvider parent, Jam sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Jam, CurrentJam> implements CurrentJam {
+        CurrentJamImpl(ScoreBoardEventProvider parent, Jam sourceElement) {
+            super(parent, sourceElement);
+        }
+
         @Override
         protected void fillMaps() {
             addPropertyMapping(Jam.TEAM_JAM);
         }
     }
+
     public static class CurrentTeamJamImpl
-        extends MirrorScoreBoardEventProviderImpl<TeamJam, CurrentTeamJam> implements CurrentTeamJam {
-        CurrentTeamJamImpl(ScoreBoardEventProvider parent, TeamJam sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<TeamJam, CurrentTeamJam> implements CurrentTeamJam {
+        CurrentTeamJamImpl(ScoreBoardEventProvider parent, TeamJam sourceElement) {
+            super(parent, sourceElement);
+        }
+
         @Override
         protected void fillMaps() {
             addPropertyMapping(TeamJam.FIELDING, TeamJam.SCORING_TRIP);
         }
     }
+
     public static class CurrentFieldingImpl
-        extends MirrorScoreBoardEventProviderImpl<Fielding, CurrentFielding> implements CurrentFielding {
-        CurrentFieldingImpl(ScoreBoardEventProvider parent, Fielding sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Fielding, CurrentFielding> implements CurrentFielding {
+        CurrentFieldingImpl(ScoreBoardEventProvider parent, Fielding sourceElement) {
+            super(parent, sourceElement);
+        }
     }
+
     public static class CurrentScoringTripImpl
-        extends MirrorScoreBoardEventProviderImpl<ScoringTrip, CurrentScoringTrip> implements CurrentScoringTrip {
+            extends MirrorScoreBoardEventProviderImpl<ScoringTrip, CurrentScoringTrip> implements CurrentScoringTrip {
         CurrentScoringTripImpl(ScoreBoardEventProvider parent, ScoringTrip sourceElement) {
             super(parent, sourceElement);
         }
     }
+
     public static class CurrentTimeoutImpl
-        extends MirrorScoreBoardEventProviderImpl<Timeout, CurrentTimeout> implements CurrentTimeout {
-        CurrentTimeoutImpl(ScoreBoardEventProvider parent, Timeout sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Timeout, CurrentTimeout> implements CurrentTimeout {
+        CurrentTimeoutImpl(ScoreBoardEventProvider parent, Timeout sourceElement) {
+            super(parent, sourceElement);
+        }
     }
+
     public static class CurrentOfficialImpl
-        extends MirrorScoreBoardEventProviderImpl<Official, CurrentOfficial> implements CurrentOfficial {
-        CurrentOfficialImpl(ScoreBoardEventProvider parent, Official sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Official, CurrentOfficial> implements CurrentOfficial {
+        CurrentOfficialImpl(ScoreBoardEventProvider parent, Official sourceElement) {
+            super(parent, sourceElement);
+        }
     }
+
     public static class CurrentExpulsionImpl
-        extends MirrorScoreBoardEventProviderImpl<Expulsion, CurrentExpulsion> implements CurrentExpulsion {
-        CurrentExpulsionImpl(ScoreBoardEventProvider parent, Expulsion sourceElement) { super(parent, sourceElement); }
+            extends MirrorScoreBoardEventProviderImpl<Expulsion, CurrentExpulsion> implements CurrentExpulsion {
+        CurrentExpulsionImpl(ScoreBoardEventProvider parent, Expulsion sourceElement) {
+            super(parent, sourceElement);
+        }
     }
 }

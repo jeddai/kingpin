@@ -109,7 +109,7 @@ class JettyServletScoreBoardController(
                 logger.info("or try one of these URLs:")
             }
             while (urls.hasNext()) {
-                logger.info("	${urls.next()}" )
+                logger.info("	${urls.next()}")
             }
         } catch (muE: MalformedURLException) {
             logger.error("Internal error: malformed URL from Server Connector: ", muE)

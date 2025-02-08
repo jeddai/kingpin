@@ -1,7 +1,7 @@
 scoreboard/logs/*
 scoreboard/config/autosave/*
 scoreboard/html/new-ui/*
-scoreboard/target
+target/
 
 ### IntelliJ IDEA ###
 out/

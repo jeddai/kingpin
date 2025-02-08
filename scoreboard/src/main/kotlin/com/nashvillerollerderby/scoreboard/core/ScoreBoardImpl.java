@@ -1,7 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core;
 
-import java.util.Map;
-
 import com.nashvillerollerderby.scoreboard.core.admin.ClientsImpl;
 import com.nashvillerollerderby.scoreboard.core.admin.MediaImpl;
 import com.nashvillerollerderby.scoreboard.core.admin.SettingsImpl;
@@ -28,6 +26,8 @@ import com.nashvillerollerderby.scoreboard.json.JSONStateManager;
 import com.nashvillerollerderby.scoreboard.utils.StatsbookExporter;
 import com.nashvillerollerderby.scoreboard.utils.ValWithId;
 import com.nashvillerollerderby.scoreboard.utils.Version;
+
+import java.util.Map;
 
 public class ScoreBoardImpl extends ScoreBoardEventProviderImpl<ScoreBoard> implements ScoreBoard {
     public ScoreBoardImpl(boolean useMetrics) {
@@ -66,9 +66,15 @@ public class ScoreBoardImpl extends ScoreBoardEventProviderImpl<ScoreBoard> impl
     @Override
     public ScoreBoardEventProvider create(Child<? extends ScoreBoardEventProvider> prop, String id, Source source) {
         synchronized (coreLock) {
-            if (prop == PREPARED_TEAM) { return new PreparedTeamImpl(this, id); }
-            if (prop == PREPARED_OFFICIAL) { return new PreparedOfficialImpl(this, id); }
-            if (prop == GAME) { return new GameImpl(this, id); }
+            if (prop == PREPARED_TEAM) {
+                return new PreparedTeamImpl(this, id);
+            }
+            if (prop == PREPARED_OFFICIAL) {
+                return new PreparedOfficialImpl(this, id);
+            }
+            if (prop == GAME) {
+                return new GameImpl(this, id);
+            }
             return null;
         }
     }
@@ -76,7 +82,9 @@ public class ScoreBoardImpl extends ScoreBoardEventProviderImpl<ScoreBoard> impl
     @Override
     public void postAutosaveUpdate() {
         synchronized (coreLock) {
-            for (Game g : getAll(GAME)) { g.postAutosaveUpdate(); }
+            for (Game g : getAll(GAME)) {
+                g.postAutosaveUpdate();
+            }
             get(CURRENT_GAME, "").postAutosaveUpdate();
             get(CLIENTS, "").postAutosaveUpdate();
             initialLoadDone = true;
@@ -121,14 +129,20 @@ public class ScoreBoardImpl extends ScoreBoardEventProviderImpl<ScoreBoard> impl
 
     @Override
     public TimeoutOwner getTimeoutOwner(String id) {
-        if (id == null) { id = ""; }
+        if (id == null) {
+            id = "";
+        }
         for (Timeout.Owners o : Timeout.Owners.values()) {
-            if (o.getId().equals(id)) { return o; }
+            if (o.getId().equals(id)) {
+                return o;
+            }
         }
         if (id.contains("_")) { // gameId_teamId
             String[] parts = id.split("_");
             Game g = get(GAME, parts[0]);
-            if (g != null && g.getTeam(parts[1]) != null) { return g.getTeam(parts[1]); }
+            if (g != null && g.getTeam(parts[1]) != null) {
+                return g.getTeam(parts[1]);
+            }
         }
         return Timeout.Owners.NONE;
     }
@@ -148,7 +162,7 @@ public class ScoreBoardImpl extends ScoreBoardEventProviderImpl<ScoreBoard> impl
         return initialLoadDone;
     }
 
-    private JSONStateManager jsm;
-    private boolean useMetrics;
+    private final JSONStateManager jsm;
+    private final boolean useMetrics;
     private boolean initialLoadDone = false;
 }

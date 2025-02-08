@@ -6,10 +6,11 @@ public interface ValueWithId {
      * type. Used when the element is referenced by elements other than its parent.
      * (Typically a UUID.)
      */
-    public String getId();
+    String getId();
+
     /**
      * Value of the element. For implementations of ScoreBoardEventProvider this
      * should usually be the same as getId().
      */
-    public String getValue();
+    String getValue();
 }

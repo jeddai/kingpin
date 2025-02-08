@@ -9,7 +9,10 @@ public abstract class CopyScoreBoardListener<T> implements ScoreBoardListener {
     }
 
     public abstract void scoreBoardChange(ScoreBoardEvent<T> event, Source source);
-    public boolean isActive() { return (guardElement == null || guardElement.get(guardProperty)); }
+
+    public boolean isActive() {
+        return (guardElement == null || guardElement.get(guardProperty));
+    }
 
     protected ScoreBoardEventProvider guardElement;
     protected Value<Boolean> guardProperty;

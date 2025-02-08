@@ -1,8 +1,5 @@
 package com.nashvillerollerderby.scoreboard.json;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard;
 import com.nashvillerollerderby.scoreboard.event.Child;
 import com.nashvillerollerderby.scoreboard.event.Property;
@@ -14,6 +11,9 @@ import com.nashvillerollerderby.scoreboard.event.Value;
 import com.nashvillerollerderby.scoreboard.event.ValueWithId;
 import com.nashvillerollerderby.scoreboard.utils.Log4j2Logging;
 import org.apache.logging.log4j.Logger;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Converts a ScoreBoardEvent into a representative JSON Update
@@ -41,7 +41,9 @@ public class ScoreBoardJSONListener implements ScoreBoardListener {
                 if (prop == ScoreBoardEventProviderImpl.BATCH_START) {
                     batch++;
                 } else if (prop == ScoreBoardEventProviderImpl.BATCH_END) {
-                    if (batch > 0) { batch--; }
+                    if (batch > 0) {
+                        batch--;
+                    }
                 } else if (prop instanceof Value) {
                     update(getPath(p), prop, v);
                 } else if (prop instanceof Child) {
@@ -55,15 +57,21 @@ public class ScoreBoardJSONListener implements ScoreBoardListener {
                 } else {
                     logger.info("{} update of unknown kind.\tprop: {}, v: {}", provider, prop.getJsonName(), v);
                 }
-            } catch (Exception e) { logger.error(e); } finally {
-                if (batch == 0) { updateState(); }
+            } catch (Exception e) {
+                logger.error(e);
+            } finally {
+                if (batch == 0) {
+                    updateState();
+                }
             }
         }
     }
 
     private void updateState() {
         synchronized (this) {
-            if (updates.isEmpty()) { return; }
+            if (updates.isEmpty()) {
+                return;
+            }
             jsm.updateState(updates);
             updates.clear();
         }
@@ -90,7 +98,9 @@ public class ScoreBoardJSONListener implements ScoreBoardListener {
     private void process(ScoreBoardEventProvider p, boolean remove) {
         String path = getPath(p);
         updates.add(new WSUpdate(path, null));
-        if (remove) { return; }
+        if (remove) {
+            return;
+        }
 
         for (Property<?> prop : p.getProperties()) {
             if (prop instanceof Value) {
@@ -110,13 +120,17 @@ public class ScoreBoardJSONListener implements ScoreBoardListener {
 
     String getPath(ScoreBoardEventProvider p) {
         String path = "";
-        if (p.getParent() != null) { path = getPath(p.getParent()) + "."; }
+        if (p.getParent() != null) {
+            path = getPath(p.getParent()) + ".";
+        }
         path = path + p.getProviderName();
-        if (!"".equals(p.getProviderId()) && p.getProviderId() != null) { path = path + "(" + p.getProviderId() + ")"; }
+        if (!"".equals(p.getProviderId()) && p.getProviderId() != null) {
+            path = path + "(" + p.getProviderId() + ")";
+        }
         return path;
     }
 
-    private JSONStateManager jsm;
-    private List<WSUpdate> updates = new LinkedList<>();
+    private final JSONStateManager jsm;
+    private final List<WSUpdate> updates = new LinkedList<>();
     private long batch = 0;
 }

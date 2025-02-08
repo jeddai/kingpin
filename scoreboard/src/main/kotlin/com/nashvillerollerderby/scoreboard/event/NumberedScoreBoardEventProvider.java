@@ -1,8 +1,8 @@
 package com.nashvillerollerderby.scoreboard.event;
 
 public interface NumberedScoreBoardEventProvider<C extends NumberedScoreBoardEventProvider<C>>
-    extends OrderedScoreBoardEventProvider<C> {
-    public int compareTo(NumberedScoreBoardEventProvider<?> other);
+        extends OrderedScoreBoardEventProvider<C> {
+    int compareTo(NumberedScoreBoardEventProvider<?> other);
 
-    public void moveToNumber(int num);
+    void moveToNumber(int num);
 }

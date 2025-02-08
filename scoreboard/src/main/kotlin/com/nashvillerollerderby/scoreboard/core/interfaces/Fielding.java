@@ -1,48 +1,54 @@
 package com.nashvillerollerderby.scoreboard.core.interfaces;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.nashvillerollerderby.scoreboard.event.Child;
 import com.nashvillerollerderby.scoreboard.event.Command;
 import com.nashvillerollerderby.scoreboard.event.ParentOrderedScoreBoardEventProvider;
 import com.nashvillerollerderby.scoreboard.event.Property;
 import com.nashvillerollerderby.scoreboard.event.Value;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 public interface Fielding extends ParentOrderedScoreBoardEventProvider<Fielding> {
-    public TeamJam getTeamJam();
-    public Position getPosition();
+    TeamJam getTeamJam();
 
-    public boolean isCurrent();
-    public Role getCurrentRole();
+    Position getPosition();
 
-    public Skater getSkater();
-    public void setSkater(Skater s);
+    boolean isCurrent();
 
-    public boolean isSitFor3();
-    public boolean isInBox();
-    public BoxTrip getCurrentBoxTrip();
-    public void updateBoxTripSymbols();
+    Role getCurrentRole();
 
-    public static Collection<Property<?>> props = new ArrayList<>();
+    Skater getSkater();
 
-    public static final Value<Skater> SKATER = new Value<>(Skater.class, "Skater", null, props);
-    public static final Value<String> SKATER_NUMBER = new Value<>(String.class, "SkaterNumber", "?", props);
-    public static final Value<Boolean> NOT_FIELDED = new Value<>(Boolean.class, "NotFielded", false, props);
-    public static final Value<Position> POSITION = new Value<>(Position.class, "Position", null, props);
-    public static final Value<Boolean> SIT_FOR_3 = new Value<>(Boolean.class, "SitFor3", false, props);
-    public static final Value<Boolean> PENALTY_BOX = new Value<>(Boolean.class, "PenaltyBox", false, props);
-    public static final Value<BoxTrip> CURRENT_BOX_TRIP = new Value<>(BoxTrip.class, "CurrentBoxTrip", null, props);
-    public static final Value<String> BOX_TRIP_SYMBOLS = new Value<>(String.class, "BoxTripSymbols", "", props);
-    public static final Value<String> BOX_TRIP_SYMBOLS_BEFORE_S_P =
-        new Value<>(String.class, "BoxTripSymbolsBeforeSP", "", props);
-    public static final Value<String> BOX_TRIP_SYMBOLS_AFTER_S_P =
-        new Value<>(String.class, "BoxTripSymbolsAfterSP", "", props);
-    public static final Value<Long> PENALTY_TIME = new Value<>(Long.class, "PenaltyTime", null, props);
-    public static final Value<String> ANNOTATION = new Value<>(String.class, "Annotation", "", props);
+    void setSkater(Skater s);
 
-    public static final Child<BoxTrip> BOX_TRIP = new Child<>(BoxTrip.class, "BoxTrip", props);
+    boolean isSitFor3();
 
-    public static final Command ADD_BOX_TRIP = new Command("AddBoxTrip", props);
-    public static final Command UNEND_BOX_TRIP = new Command("UnendBoxTrip", props);
+    boolean isInBox();
+
+    BoxTrip getCurrentBoxTrip();
+
+    void updateBoxTripSymbols();
+
+    Collection<Property<?>> props = new ArrayList<>();
+
+    Value<Skater> SKATER = new Value<>(Skater.class, "Skater", null, props);
+    Value<String> SKATER_NUMBER = new Value<>(String.class, "SkaterNumber", "?", props);
+    Value<Boolean> NOT_FIELDED = new Value<>(Boolean.class, "NotFielded", false, props);
+    Value<Position> POSITION = new Value<>(Position.class, "Position", null, props);
+    Value<Boolean> SIT_FOR_3 = new Value<>(Boolean.class, "SitFor3", false, props);
+    Value<Boolean> PENALTY_BOX = new Value<>(Boolean.class, "PenaltyBox", false, props);
+    Value<BoxTrip> CURRENT_BOX_TRIP = new Value<>(BoxTrip.class, "CurrentBoxTrip", null, props);
+    Value<String> BOX_TRIP_SYMBOLS = new Value<>(String.class, "BoxTripSymbols", "", props);
+    Value<String> BOX_TRIP_SYMBOLS_BEFORE_S_P =
+            new Value<>(String.class, "BoxTripSymbolsBeforeSP", "", props);
+    Value<String> BOX_TRIP_SYMBOLS_AFTER_S_P =
+            new Value<>(String.class, "BoxTripSymbolsAfterSP", "", props);
+    Value<Long> PENALTY_TIME = new Value<>(Long.class, "PenaltyTime", null, props);
+    Value<String> ANNOTATION = new Value<>(String.class, "Annotation", "", props);
+
+    Child<BoxTrip> BOX_TRIP = new Child<>(BoxTrip.class, "BoxTrip", props);
+
+    Command ADD_BOX_TRIP = new Command("AddBoxTrip", props);
+    Command UNEND_BOX_TRIP = new Command("UnendBoxTrip", props);
 }

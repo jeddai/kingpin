@@ -1,7 +1,5 @@
 package com.nashvillerollerderby.scoreboard.core.admin;
 
-import java.nio.file.Paths;
-
 import com.nashvillerollerderby.scoreboard.core.interfaces.Clock;
 import com.nashvillerollerderby.scoreboard.core.interfaces.Game;
 import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard;
@@ -12,6 +10,8 @@ import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProviderImpl;
 import com.nashvillerollerderby.scoreboard.event.ValueWithId;
 import com.nashvillerollerderby.scoreboard.utils.StatsbookExporter;
 import com.nashvillerollerderby.scoreboard.utils.ValWithId;
+
+import java.nio.file.Paths;
 
 public class SettingsImpl extends ScoreBoardEventProviderImpl<Settings> implements Settings {
     public SettingsImpl(ScoreBoard s) {
@@ -27,7 +27,9 @@ public class SettingsImpl extends ScoreBoardEventProviderImpl<Settings> implemen
                 boolean found = Paths.get(item.getValue()).toFile().canRead();
                 if (found && scoreBoard.isInitialLoadDone()) {
                     StatsbookExporter.preload(item.getValue(), getScoreBoard());
-                    for (Game g : scoreBoard.getAll(ScoreBoard.GAME)) { g.clearStatsbookError(); }
+                    for (Game g : scoreBoard.getAll(ScoreBoard.GAME)) {
+                        g.clearStatsbookError();
+                    }
                 } else if (!found) {
                     getScoreBoard().set(ScoreBoard.BLANK_STATSBOOK_FOUND, "none");
                 }
@@ -84,10 +86,13 @@ public class SettingsImpl extends ScoreBoardEventProviderImpl<Settings> implemen
     @Override
     public String get(String k) {
         synchronized (coreLock) {
-            if (get(SETTING, k) == null) { return null; }
+            if (get(SETTING, k) == null) {
+                return null;
+            }
             return get(SETTING, k).getValue();
         }
     }
+
     @Override
     public void set(String k, String v) {
         synchronized (coreLock) {

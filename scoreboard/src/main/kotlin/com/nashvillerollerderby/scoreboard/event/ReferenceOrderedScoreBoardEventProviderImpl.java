@@ -1,7 +1,7 @@
 package com.nashvillerollerderby.scoreboard.event;
 
 public abstract class ReferenceOrderedScoreBoardEventProviderImpl<C extends ReferenceOrderedScoreBoardEventProvider<C>>
-    extends OrderedScoreBoardEventProviderImpl<C> implements ReferenceOrderedScoreBoardEventProvider<C> {
+        extends OrderedScoreBoardEventProviderImpl<C> implements ReferenceOrderedScoreBoardEventProvider<C> {
     protected ReferenceOrderedScoreBoardEventProviderImpl(ScoreBoardEventProvider parent,
                                                           OrderedScoreBoardEventProvider<?> reference, Child<C> type) {
         super(parent, reference.getId(), type);
@@ -38,5 +38,5 @@ public abstract class ReferenceOrderedScoreBoardEventProviderImpl<C extends Refe
         return super._computeValue(prop, value, last, source, flag);
     }
 
-    private OrderedScoreBoardEventProvider<?> reference;
+    private final OrderedScoreBoardEventProvider<?> reference;
 }

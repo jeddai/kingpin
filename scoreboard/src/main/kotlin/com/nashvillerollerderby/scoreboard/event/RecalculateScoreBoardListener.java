@@ -1,9 +1,9 @@
 package com.nashvillerollerderby.scoreboard.event;
 
+import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProvider.Source;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProvider.Source;
 
 public class RecalculateScoreBoardListener<T> implements SelfRemovingScoreBoardListener {
     RecalculateScoreBoardListener(ScoreBoardEventProvider targetElement, Value<T> targetProperty) {
@@ -22,11 +22,12 @@ public class RecalculateScoreBoardListener<T> implements SelfRemovingScoreBoardL
         element.addScoreBoardListener(l);
         return this;
     }
+
     public RecalculateScoreBoardListener<T>
     addIndirectSource(ScoreBoardEventProvider indirectionElement,
                       Value<? extends ScoreBoardEventProvider> indirectionProperty, Property<?> watchedProperty) {
         IndirectScoreBoardListener<?, ?> l =
-            new IndirectScoreBoardListener<>(indirectionElement, indirectionProperty, watchedProperty, this);
+                new IndirectScoreBoardListener<>(indirectionElement, indirectionProperty, watchedProperty, this);
         sources.put(l, null);
         return this;
     }

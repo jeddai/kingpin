@@ -1,6 +1,5 @@
 package com.nashvillerollerderby.scoreboard.utils
 
-import com.nashvillerollerderby.scoreboard.ScoreboardApplication
 import com.nashvillerollerderby.scoreboard.core.game.GameImpl
 import com.nashvillerollerderby.scoreboard.core.interfaces.Game
 import com.nashvillerollerderby.scoreboard.core.interfaces.Official

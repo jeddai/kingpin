@@ -19,7 +19,7 @@ class PenaltyImpl(s: Skater, n: Int) : NumberedScoreBoardEventProviderImpl<Penal
         if (jam == null) {
             return 1
         }
-        return jam.compareTo(other.jam)
+        return jam?.compareTo(other.jam) ?: -1
     }
 
     override fun computeValue(
@@ -122,7 +122,7 @@ class PenaltyImpl(s: Skater, n: Int) : NumberedScoreBoardEventProviderImpl<Penal
         return get(Penalty.JAM_NUMBER)
     }
 
-    override fun getJam(): Jam {
+    override fun getJam(): Jam? {
         return get(Penalty.JAM)
     }
 

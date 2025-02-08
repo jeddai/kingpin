@@ -6,8 +6,8 @@ import com.nashvillerollerderby.scoreboard.jetty.JettyServletScoreBoardControlle
 import com.nashvillerollerderby.scoreboard.json.AutoSaveJSONState
 import com.nashvillerollerderby.scoreboard.json.ScoreBoardJSONListener
 import com.nashvillerollerderby.scoreboard.utils.BasePath
-import com.nashvillerollerderby.scoreboard.utils.Version
 import com.nashvillerollerderby.scoreboard.utils.Log4j2Logging
+import com.nashvillerollerderby.scoreboard.utils.Version
 import com.nashvillerollerderby.scoreboard.viewer.ScoreBoardMetricsCollector
 import io.prometheus.client.Collector
 import java.awt.Font
@@ -23,6 +23,7 @@ import javax.swing.JFrame
 import javax.swing.JLabel
 import javax.swing.JScrollPane
 import javax.swing.JTextArea
+import kotlin.system.exitProcess
 
 class ScoreboardApplication(argv: Array<String>) {
 
@@ -87,7 +88,7 @@ class ScoreboardApplication(argv: Array<String>) {
             Thread.sleep(15000)
         } catch (e: Exception) { /* Probably Ctrl-C or similar, ignore. */
         }
-        System.exit(1)
+        exitProcess(1)
     }
 
     private fun parseArgv(argv: Array<String>) {
@@ -156,19 +157,19 @@ class ScoreboardApplication(argv: Array<String>) {
             return
         }
 
-        logger.info("importing data from " + sourcePath.toString())
+        logger.info("importing data from $sourcePath")
         val targetPath = Paths.get(".")
         try {
             copyFiles(
-                sourcePath!!, targetPath, Paths.get("config", "autosave"), ".json",
+                sourcePath, targetPath, Paths.get("config", "autosave"), ".json",
                 StandardCopyOption.REPLACE_EXISTING
             )
-            copyFiles(sourcePath!!, targetPath, Paths.get(""), ".xlsx")
-            copyDir(sourcePath!!, targetPath, Paths.get("config", "penalties"))
-            copyDir(sourcePath!!, targetPath, Paths.get("html", "game-data"))
-            copyDir(sourcePath!!, targetPath, Paths.get("html", "custom"))
-            copyDir(sourcePath!!, targetPath, Paths.get("html", "images"))
-            copyDir(sourcePath!!, targetPath, Paths.get("html", "videos"))
+            copyFiles(sourcePath, targetPath, Paths.get(""), ".xlsx")
+            copyDir(sourcePath, targetPath, Paths.get("config", "penalties"))
+            copyDir(sourcePath, targetPath, Paths.get("html", "game-data"))
+            copyDir(sourcePath, targetPath, Paths.get("html", "custom"))
+            copyDir(sourcePath, targetPath, Paths.get("html", "images"))
+            copyDir(sourcePath, targetPath, Paths.get("html", "videos"))
         } catch (e: IOException) {
             logger.error("Exception during importing: ", e)
         }
@@ -220,14 +221,15 @@ class ScoreboardApplication(argv: Array<String>) {
         if (guiFrameText != null) {
             guiFrameText!!.text = "ScoreBoard status: running (close this window to exit scoreboard)"
         }
-
-
     }
 
     companion object {
         @JvmStatic
         fun main(argv: Array<String>) {
-            System.setProperty("org.eclipse.jetty.util.log.class", "org.apache.logging.log4j.appserver.jetty.Log4j2Logger")
+            System.setProperty(
+                "org.eclipse.jetty.util.log.class",
+                "org.apache.logging.log4j.appserver.jetty.Log4j2Logger"
+            )
             Log4j2Logging.initialize()
             ScoreboardApplication(argv)
         }

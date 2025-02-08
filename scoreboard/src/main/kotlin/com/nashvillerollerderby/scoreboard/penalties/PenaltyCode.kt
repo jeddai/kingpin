@@ -1,10 +1,10 @@
 package com.nashvillerollerderby.scoreboard.penalties
 
 import com.nashvillerollerderby.scoreboard.event.ValueWithId
-import java.util.*
 
 class PenaltyCode : ValueWithId {
     var code: String? = null
+
     @JvmField
     var verbalCues: List<String>? = null
 

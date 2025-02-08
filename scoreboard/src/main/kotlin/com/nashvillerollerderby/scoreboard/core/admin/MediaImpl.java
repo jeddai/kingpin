@@ -1,8 +1,9 @@
 package com.nashvillerollerderby.scoreboard.core.admin;
 
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import com.nashvillerollerderby.scoreboard.core.interfaces.Media;
+import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard;
+import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProviderImpl;
+import com.nashvillerollerderby.scoreboard.utils.BasePath;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,10 +18,9 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 
-import com.nashvillerollerderby.scoreboard.core.interfaces.Media;
-import com.nashvillerollerderby.scoreboard.core.interfaces.ScoreBoard;
-import com.nashvillerollerderby.scoreboard.event.ScoreBoardEventProviderImpl;
-import com.nashvillerollerderby.scoreboard.utils.BasePath;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Media {
     public MediaImpl(ScoreBoard parent) {
@@ -62,7 +62,9 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
                     WatchKey key;
                     try {
                         key = watchService.take();
-                    } catch (InterruptedException x) { return; }
+                    } catch (InterruptedException x) {
+                        return;
+                    }
                     Path dir = (Path) key.watchable();
                     String format = dir.getName(dir.getNameCount() - 2).toString();
                     String type = dir.getName(dir.getNameCount() - 1).toString();
@@ -85,7 +87,9 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
                                 }
                             }
                             key.reset();
-                        } finally { requestBatchEnd(); }
+                        } finally {
+                            requestBatchEnd();
+                        }
                     }
                 }
             }
@@ -99,10 +103,14 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
             Collection<MediaFile> files = getFormat(format).getType(type).getAll(MediaType.FILE);
             // Remove any files that aren't there any more.
             for (MediaFile fn : files) {
-                if (!p.resolve(fn.getId()).toFile().exists()) { mediaFileDeleted(format, type, fn.getId()); }
+                if (!p.resolve(fn.getId()).toFile().exists()) {
+                    mediaFileDeleted(format, type, fn.getId());
+                }
             }
             // Add any files that are there.
-            for (File f : p.toFile().listFiles()) { mediaFileCreated(format, type, f.getName()); }
+            for (File f : p.toFile().listFiles()) {
+                mediaFileCreated(format, type, f.getName());
+            }
         }
     }
 
@@ -133,8 +141,11 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
     private void addFormat(String format, String... types) {
         MediaFormatImpl child = new MediaFormatImpl(this, format);
         add(FORMAT, child);
-        for (String type : types) { child.addType(type); }
+        for (String type : types) {
+            child.addType(type);
+        }
     }
+
     @Override
     public MediaFormat getFormat(String format) {
         return get(FORMAT, format);
@@ -163,7 +174,9 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
                     return true;
                 }
                 return false;
-            } catch (Exception e) { return false; }
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 
@@ -186,9 +199,12 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
         public MediaType getType(String type) {
             return get(TYPE, type);
         }
-        protected void addType(String type) { add(TYPE, new MediaTypeImpl(this, type)); }
 
-        private String format;
+        protected void addType(String type) {
+            add(TYPE, new MediaTypeImpl(this, type));
+        }
+
+        private final String format;
     }
 
     public class MediaTypeImpl extends ScoreBoardEventProviderImpl<MediaType> implements MediaType {
@@ -218,18 +234,20 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
         public MediaFile getFile(String file) {
             return get(FILE, file);
         }
+
         @Override
         public void addFile(MediaFile file) {
             add(FILE, file);
         }
+
         @Override
         public void removeFile(MediaFile file) {
             remove(FILE, file);
         }
 
         @SuppressWarnings("hiding")
-        private MediaFormat parent;
-        private String type;
+        private final MediaFormat parent;
+        private final String type;
     }
 
     public class MediaFileImpl extends ScoreBoardEventProviderImpl<MediaFile> implements MediaFile {
@@ -244,25 +262,39 @@ public class MediaImpl extends ScoreBoardEventProviderImpl<Media> implements Med
 
         @Override
         public String getFormat() {
-            synchronized (coreLock) { return type.getFormat(); }
-        }
-        @Override
-        public String getType() {
-            synchronized (coreLock) { return type.getType(); }
-        }
-        @Override
-        public String getName() {
-            synchronized (coreLock) { return get(NAME); }
-        }
-        @Override
-        public void setName(String n) {
-            synchronized (coreLock) { set(NAME, n); }
-        }
-        @Override
-        public String getSrc() {
-            synchronized (coreLock) { return get(SRC); }
+            synchronized (coreLock) {
+                return type.getFormat();
+            }
         }
 
-        private MediaType type;
+        @Override
+        public String getType() {
+            synchronized (coreLock) {
+                return type.getType();
+            }
+        }
+
+        @Override
+        public String getName() {
+            synchronized (coreLock) {
+                return get(NAME);
+            }
+        }
+
+        @Override
+        public void setName(String n) {
+            synchronized (coreLock) {
+                set(NAME, n);
+            }
+        }
+
+        @Override
+        public String getSrc() {
+            synchronized (coreLock) {
+                return get(SRC);
+            }
+        }
+
+        private final MediaType type;
     }
 }

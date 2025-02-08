@@ -7,7 +7,10 @@ public class Value<T> extends Property<T> {
         super(type, jsonName, propsToAddTo);
         this.defaultValue = defaultValue;
     }
-    public T getDefaultValue() { return defaultValue; }
 
-    private T defaultValue;
+    public T getDefaultValue() {
+        return defaultValue;
+    }
+
+    private final T defaultValue;
 }

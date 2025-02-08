@@ -1,5 +1,7 @@
 package com.nashvillerollerderby.scoreboard.utils;
 
+import com.nashvillerollerderby.scoreboard.core.ScoreBoardImpl;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,8 +9,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import com.nashvillerollerderby.scoreboard.core.ScoreBoardImpl;
 
 public class ScoreBoardClock extends TimerTask {
     private ScoreBoardClock() {
@@ -18,15 +18,23 @@ public class ScoreBoardClock extends TimerTask {
         dateFormat.setTimeZone(TimeZone.getDefault());
     }
 
-    public static ScoreBoardClock getInstance() { return instance; }
-
-    public String getLocalTime() { return dateFormat.format(new Date()) + "[" + TimeZone.getDefault().getID() + "]"; }
-
-    public long getCurrentTime() {
-        synchronized (coreLock) { return currentTime; }
+    public static ScoreBoardClock getInstance() {
+        return instance;
     }
 
-    public long getCurrentWalltime() { return System.currentTimeMillis(); }
+    public String getLocalTime() {
+        return dateFormat.format(new Date()) + "[" + TimeZone.getDefault().getID() + "]";
+    }
+
+    public long getCurrentTime() {
+        synchronized (coreLock) {
+            return currentTime;
+        }
+    }
+
+    public long getCurrentWalltime() {
+        return System.currentTimeMillis();
+    }
 
     public void rewindTo(long time) {
         synchronized (coreLock) {
@@ -41,7 +49,9 @@ public class ScoreBoardClock extends TimerTask {
     }
 
     public long getLastRewind() {
-        synchronized (coreLock) { return lastRewind; }
+        synchronized (coreLock) {
+            return lastRewind;
+        }
     }
 
     public void advance(long ms) {
@@ -60,13 +70,17 @@ public class ScoreBoardClock extends TimerTask {
 
     public void start(boolean doCatchUp) {
         synchronized (coreLock) {
-            if (!doCatchUp) { offset = System.currentTimeMillis() - currentTime; }
+            if (!doCatchUp) {
+                offset = System.currentTimeMillis() - currentTime;
+            }
             stopCounter--;
         }
     }
 
     public void registerClient(ScoreBoardClockClient client) {
-        synchronized (coreLock) { clients.add(client); }
+        synchronized (coreLock) {
+            clients.add(client);
+        }
     }
 
     private void updateTime() {
@@ -77,12 +91,16 @@ public class ScoreBoardClock extends TimerTask {
     }
 
     private void updateClients() {
-        for (ScoreBoardClockClient client : clients) { client.updateTime(currentTime); }
+        for (ScoreBoardClockClient client : clients) {
+            client.updateTime(currentTime);
+        }
     }
 
     @Override
     public void run() {
-        synchronized (coreLock) { updateTime(); }
+        synchronized (coreLock) {
+            updateTime();
+        }
     }
 
     private long offset;
@@ -90,15 +108,15 @@ public class ScoreBoardClock extends TimerTask {
     private int stopCounter = 0;
     private long lastRewind = 0;
 
-    private Timer timer = new Timer();
+    private final Timer timer = new Timer();
 
-    private SimpleDateFormat dateFormat;
+    private final SimpleDateFormat dateFormat;
 
     private static final ScoreBoardClock instance = new ScoreBoardClock();
 
-    private Object coreLock = ScoreBoardImpl.getCoreLock();
+    private final Object coreLock = ScoreBoardImpl.getCoreLock();
 
-    private List<ScoreBoardClockClient> clients = new ArrayList<>();
+    private final List<ScoreBoardClockClient> clients = new ArrayList<>();
 
     public static final long CLOCK_UPDATE_INTERVAL = 200; /* in ms */
 

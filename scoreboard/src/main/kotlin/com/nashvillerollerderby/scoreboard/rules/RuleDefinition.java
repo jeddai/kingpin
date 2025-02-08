@@ -16,15 +16,34 @@ public abstract class RuleDefinition extends ScoreBoardEventProviderImpl<RuleDef
         set(TYPE, type);
         set(DEFAULT_VALUE, defaultValue.toString());
         set(DESCRIPTION, description);
-        for (Property<?> prop : getProperties()) { addWriteProtection(prop); }
+        for (Property<?> prop : getProperties()) {
+            addWriteProtection(prop);
+        }
     }
 
-    public Type getType() { return get(TYPE); }
-    public String getName() { return get(NAME); }
-    public String getDefaultValue() { return get(DEFAULT_VALUE); }
-    public String getDescription() { return get(DESCRIPTION); }
-    public int getIndex() { return get(INDEX); }
-    public void setIndex(Integer i) { values.put(INDEX, i); }
+    public Type getType() {
+        return get(TYPE);
+    }
+
+    public String getName() {
+        return get(NAME);
+    }
+
+    public String getDefaultValue() {
+        return get(DEFAULT_VALUE);
+    }
+
+    public String getDescription() {
+        return get(DESCRIPTION);
+    }
+
+    public int getIndex() {
+        return get(INDEX);
+    }
+
+    public void setIndex(Integer i) {
+        values.put(INDEX, i);
+    }
 
     public abstract boolean isValueValid(String v);
 
@@ -40,7 +59,9 @@ public abstract class RuleDefinition extends ScoreBoardEventProviderImpl<RuleDef
         STRING("String"),
         TIME("Time");
 
-        private Type(String s) { string = s; }
+        Type(String s) {
+            string = s;
+        }
 
         @Override
         public String toString() {
