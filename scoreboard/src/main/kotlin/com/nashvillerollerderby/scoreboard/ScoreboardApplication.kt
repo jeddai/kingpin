@@ -41,7 +41,7 @@ class ScoreboardApplication(argv: Array<String>) {
         scoreBoard = ScoreBoardImpl(useMetrics)
 
         // JSON updates.
-        val jsm = scoreBoard?.getJsm()
+        val jsm = scoreBoard?.jsm
         ScoreBoardJSONListener(scoreBoard, jsm)
 
         // Controllers.

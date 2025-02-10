@@ -273,10 +273,9 @@ class WS(private val sb: ScoreBoard, private val jsm: JSONStateManager, private 
         fun send(json: Map<String?, Any?>?) {
             val timer = if (useMetrics) messagesSentDuration!!.startTimer() else null
             try {
-                wsSession!!.remote.sendString(JSON.std.with(JSON.Feature.WRITE_NULL_PROPERTIES).composeString().addObject(json).finish())
-//                wsSession!!.remote.sendStringByFuture(
-//                    JSON.std.with(JSON.Feature.WRITE_NULL_PROPERTIES).composeString().addObject(json).finish()
-//                )
+                wsSession!!.remote.sendString(
+                    JSON.std.with(JSON.Feature.WRITE_NULL_PROPERTIES).composeString().addObject(json).finish()
+                )
             } catch (e: Exception) {
                 logger.error("Error sending JSON update:", e)
                 if (useMetrics) {
